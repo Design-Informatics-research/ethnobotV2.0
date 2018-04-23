@@ -1,17 +1,16 @@
 import React, { Component } from 'react';
 import { View, Image, Alert} from 'react-native';
-import Review from './Review';
 import Cam from './Cam';
 import Test from './src/Test';
 
+import * as actions from './src/actions';
 
 export default steps = [
   {
     id: "intro1",
     message: 'Hello, I am Ethnobot',
     trigger: ({ value, steps }) => {
-      console.log(value)
-      // alert("Tets")
+      console.log("time", new Date().toLocaleString())
       return "name"
     }
   },
@@ -32,7 +31,7 @@ export default steps = [
   },
   {
     id: 'jobRole',
-    message: "What’s You Job?",
+    message: "What’s your Job?",
     trigger: "intro4",
   },
   {
@@ -47,7 +46,7 @@ export default steps = [
   },
   {
     id: "intro6",
-    message: 'You will take me on a currated experience involving three works of art; art that is transformative, contentious, and new.',
+    message: 'You will take me on a curated experience involving three works of art; art that is transformative, contentious, and new.',
     trigger: "intro7",
   },
   {
@@ -75,10 +74,7 @@ export default steps = [
   {
     id: "intro11",
     message: 'Great!',
-    trigger: ({ value, steps }) => {
-      console.log("steps:",steps)
-      return 'Transformative'
-    }
+    trigger: 'Transformative'
   },
   {
     id: "Transformative",
@@ -123,7 +119,7 @@ export default steps = [
     id: "trans7",
     waitAction: true,
     component: <Cam />,
-    trigger: "trans8"
+    trigger: 'trans8'
   },
   {
     id: "trans8",
@@ -175,228 +171,234 @@ export default steps = [
   },
   {
     id: "trans17",
-    message: 'Who or what is this tranformative for and why?',
+    message: 'Alright, I am gonna ask a some deep questions now.',
     trigger: "trans18",
   },
+
   {
     id: "trans18",
-    user: true,
+    message: 'Who or what is this transformative for and why?',
     trigger: "trans19",
   },
   {
     id: "trans19",
-    message: 'Are others affected?',
+    user: true,
     trigger: "trans20",
   },
   {
     id: "trans20",
-    options: [
-      { value: 1, label: 'Yes', trigger: "trans21" },
-      { value: 2, label: 'No', trigger: "trans23" },
-    ]
+    message: 'Are others affected?',
+    trigger: "trans21",
   },
   {
     id: "trans21",
-    message: 'Who and Why?',
-    trigger: "trans22",
-  },
-  {
-    id: "trans22",
-    user: true,
-    trigger: "trans19",
-  },
-  {
-    id: "trans23",
-    message: 'Could you please expand on the quality, taste, and appropiateness of this work of art?',
-    trigger: "trans24",
-  },
-  {
-    id: "trans24",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans30" },
-      { value: 2, label: 'No', trigger: "trans25" },
+      { value: 1, label: 'Yes', trigger: "trans22" },
+      { value: 2, label: 'No', trigger: "trans24" },
     ]
   },
   {
+    id: "trans22",
+    message: 'Who and Why?',
+    trigger: "trans23",
+  },
+  {
+    id: "trans23",
+    user: true,
+    trigger: "trans20",
+  },
+  {
+    id: "trans24",
+    message: 'Could you please expand on the quality, taste, and appropriateness of this work of art?',
+    trigger: "trans25",
+  },
+  {
     id: "trans25",
-    message: 'No, why not?',
-    trigger: "trans26",
+    options: [
+      { value: 1, label: 'Yes', trigger: "trans31" },
+      { value: 2, label: 'No', trigger: "trans26" },
+    ]
   },
   {
     id: "trans26",
-    user: true,
+    message: 'No, why not?',
     trigger: "trans27",
   },
   {
     id: "trans27",
-    message: 'Anything else to add?',
+    user: true,
     trigger: "trans28",
   },
   {
     id: "trans28",
-    options: [
-      { value: 1, label: 'Yes', trigger: "trans29" },
-      { value: 2, label: 'No', trigger: "trans39" },
-    ]
+    message: 'Anything else to add?',
+    trigger: "trans29",
   },
   {
     id: "trans29",
-    user: true,
-    trigger: "trans27",
+    options: [
+      { value: 1, label: 'Yes', trigger: "trans30" },
+      { value: 2, label: 'No', trigger: "trans40" },
+    ]
   },
   {
     id: "trans30",
-    message: 'Focus on any or all points and take a pic if it helps.',
-    trigger: "trans31",
+    user: true,
+    trigger: "trans28",
   },
   {
     id: "trans31",
-    message: 'Want to take a pic?',
+    message: 'Focus on any or all points and take a pic if it helps.',
     trigger: "trans32",
   },
   {
     id: "trans32",
-    options: [
-      { value: 1, label: 'Yes', trigger: "trans33" },
-      { value: 2, label: 'No', trigger: "trans35" },
-    ]
+    message: 'Want to take a pic?',
+    trigger: "trans33",
   },
   {
     id: "trans33",
-    waitAction: true,
-    component: <Cam />,
-    trigger: "trans34"
+    options: [
+      { value: 1, label: 'Yes', trigger: "trans34" },
+      { value: 2, label: 'No', trigger: "trans36" },
+    ]
   },
   {
     id: "trans34",
-    component: <Test />,
+    waitAction: true,
+    component: <Cam />,
     trigger: "trans35"
   },
   {
     id: "trans35",
-    user: true,
-    trigger: "trans36",
+    component: <Test />,
+    trigger: "trans36"
   },
   {
     id: "trans36",
-    message: 'Anything else to add?',
+    user: true,
     trigger: "trans37",
   },
   {
     id: "trans37",
-    options: [
-      { value: 1, label: 'Yes', trigger: "trans38" },
-      { value: 2, label: 'No', trigger: "trans39" },
-    ]
+    message: 'Anything else to add?',
+    trigger: "trans38",
   },
   {
     id: "trans38",
-    user: true,
-    trigger: "trans36",
+    options: [
+      { value: 1, label: 'Yes', trigger: "trans39" },
+      { value: 2, label: 'No', trigger: "trans40" },
+    ]
   },
   {
     id: "trans39",
-    message: 'Is there anything more about context that you could share?',
+    user: true,
     trigger: "trans40",
   },
   {
     id: "trans40",
-    options: [
-      { value: 1, label: 'Yes', trigger: "trans41" },
-      { value: 2, label: 'No', trigger: "trans45" },
-    ]
+    message: 'Could you expand on the context about this work of art?',
+    trigger: "trans41",
   },
   {
     id: "trans41",
-    message: 'Go on...',
-    trigger: "trans42",
+    options: [
+      { value: 1, label: 'Yes', trigger: "trans42" },
+      { value: 2, label: 'No', trigger: "trans47" },
+    ]
   },
   {
     id: "trans42",
-    user: true,
+    message: 'Go on...',
     trigger: "trans43",
   },
   {
     id: "trans43",
-    message: 'Anything else to add?',
+    user: true,
     trigger: "trans44",
   },
   {
     id: "trans44",
-    options: [
-      { value: 1, label: 'Yes', trigger: "trans45" },
-      { value: 2, label: 'No', trigger:  "trans46"},
-    ]
+    message: 'Anything else to add?',
+    trigger: "trans45",
   },
   {
     id: "trans45",
-    user: true,
-    trigger: "trans43",
-  },
-  {
-    id: "trans46",
-    message: 'Would you like to say anything else about this work of art or any issue related?',
-    trigger: "trans47",
-  },
-  {
-    id: "trans47",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans48" },
-      { value: 2, label: 'No', trigger: "trans57" },
+      { value: 1, label: 'Yes', trigger: "trans46" },
+      { value: 2, label: 'No', trigger:  "trans47"},
     ]
   },
   {
+    id: "trans46",
+    user: true,
+    trigger: "trans44",
+  },
+  {
+    id: "trans47",
+    message: 'Would you like to say anything else about this work of art or any issue related?',
+    trigger: "trans48",
+  },
+  {
     id: "trans48",
-    message: 'Tell me about it and take a pic if it helps...',
-    trigger: "trans49",
+    options: [
+      { value: 1, label: 'Yes', trigger: "trans49" },
+      { value: 2, label: 'No', trigger: "trans58" },
+    ]
   },
   {
     id: "trans49",
-    message: 'Want to take a pic?',
+    message: 'Tell me about it and take a pic if it helps...',
     trigger: "trans50",
   },
   {
     id: "trans50",
-    options: [
-      { value: 1, label: 'Yes', trigger: "trans51" },
-      { value: 2, label: 'No', trigger: "trans53" },
-    ]
+    message: 'Want to take a pic?',
+    trigger: "trans51",
   },
   {
     id: "trans51",
-    waitAction: true,
-    component: <Cam />,
-    trigger: "trans52"
+    options: [
+      { value: 1, label: 'Yes', trigger: "trans52" },
+      { value: 2, label: 'No', trigger: "trans54" },
+    ]
   },
   {
     id: "trans52",
-    component: <Test />,
+    waitAction: true,
+    component: <Cam />,
     trigger: "trans53"
   },
   {
     id: "trans53",
-    user: true,
-    trigger: "trans54",
+    component: <Test />,
+    trigger: "trans54"
   },
   {
     id: "trans54",
-    message: 'Anything else to add?',
+    user: true,
     trigger: "trans55",
   },
   {
     id: "trans55",
-    options: [
-      { value: 1, label: 'Yes', trigger: "trans56" },
-      { value: 2, label: 'No', trigger:  "trans57"},
-    ]
+    message: 'Anything else to add?',
+    trigger: "trans56",
   },
   {
     id: "trans56",
-    user: true,
-    trigger: "trans54",
+    options: [
+      { value: 1, label: 'Yes', trigger: "trans57" },
+      { value: 2, label: 'No', trigger:  "trans58"},
+    ]
   },
   {
     id: "trans57",
+    user: true,
+    trigger: "trans55",
+  },
+  {
+    id: "trans58",
     message: 'Great let’s move on...',
     trigger: "Contentious",
   },
@@ -523,7 +525,7 @@ export default steps = [
   },
   {
     id: "con22",
-    message: 'Our research shows contention raises issues of inlcusivity and exculsivity... Does this work of art have issues with inlcusivity and exclusivity?',
+    message: 'Our research shows contention raises issues of inclusivity and exclusivity... Does this work of art have issues with inclusivity and exclusivity?',
     trigger: "con23",
   },
   {
@@ -595,7 +597,7 @@ export default steps = [
   },
   {
     id: "con35",
-    message: 'Similarly contentious works of art have element of trust and risk. Can you expand on either or both?',
+    message: 'Similarly contentious works of art have elements of trust and risk. Can you expand on either or both?',
     trigger: "con36",
   },
   {
@@ -734,7 +736,7 @@ export default steps = [
   },
   {
     id: "newArt",
-    message: 'Could you please take me to a public space that could use a new work of art or somewhere where a pulic work of art could be replaced?',
+    message: 'Could you please take me to a public space that could use a new work of art or somewhere where a public work of art could be replaced?',
     trigger: "new1"
   },
   {
@@ -913,360 +915,468 @@ export default steps = [
       { value: 2, label: 'No', trigger: "new37" },
     ]
   },
+
+  //additon
+
   {
     id: "new33",
-    message: 'Is that all?',
+    user: true,
     trigger: "new34",
   },
+
+  //end of addition
   {
     id: "new34",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new39" },
-      { value: 2, label: 'No', trigger: "new35" },
-    ]
+    message: 'Is that all?',
+    trigger: "new35",
   },
   {
     id: "new35",
-    message: 'Go on...',
-    trigger: "new36",
+    options: [
+      { value: 1, label: 'Yes', trigger: "new40" },
+      { value: 2, label: 'No', trigger: "new36" },
+    ]
   },
   {
     id: "new36",
-    user: true,
-    trigger: "new33",
+    message: 'Go on...',
+    trigger: "new37",
   },
   {
     id: "new37",
-    message: 'No, why not?',
-    trigger: "new38",
+    user: true,
+    trigger: "new34",
   },
   {
     id: "new38",
-    user: true,
+    message: 'No, why not?',
     trigger: "new39",
   },
   {
     id: "new39",
-    message: 'Our research shows the process for a public art project can lack transperencey for interested parties. Given the place and potentiallity for a work of art here, can you imagine what a transparent process would be?',
+    user: true,
     trigger: "new40",
   },
   {
     id: "new40",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new41" },
-      { value: 2, label: 'No', trigger: "new46" },
-    ]
+    message: 'Our research shows the process for a public art project can lack transparency for interested parties. Given the place and potentiality for a work of art here, can you imagine what a transparent process would be?',
+    trigger: "new41",
   },
   {
     id: "new41",
-    message: 'Please give me insight by steps or association and orderof groups involved. Feel free to tell me in a different way and take a pic if it helps.',
-    trigger: "new42",
+    options: [
+      { value: 1, label: 'Yes', trigger: "new42" },
+      { value: 2, label: 'No', trigger: "new47" },
+    ]
   },
   {
     id: "new42",
-    user: true,
+    message: 'Please give me insight by steps or association and order-of groups involved.',
     trigger: "new43",
   },
   {
     id: "new43",
-    message: 'Anything else to add?',
+    user: true,
     trigger: "new44",
   },
   {
     id: "new44",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new45" },
-      { value: 2, label: 'No', trigger: "new48" },
-    ]
+    message: 'Anything else to add?',
+    trigger: "new45",
   },
   {
     id: "new45",
-    user: true,
-    trigger: "new43",
+    options: [
+      { value: 1, label: 'Yes', trigger: "new46" },
+      { value: 2, label: 'No', trigger: "new49" },
+    ]
   },
   {
     id: "new46",
-    message: 'No, why not?',
-    trigger: "new47",
+    user: true,
+    trigger: "new44",
   },
   {
     id: "new47",
-    user: true,
+    message: 'No, why not?',
     trigger: "new48",
   },
   {
     id: "new48",
-    message: 'Well, that’s a lot to think about... Are there any other issues that you would like to address in the context of process?',
+    user: true,
     trigger: "new49",
   },
   {
     id: "new49",
-    options: [
-      { value: 1, label: 'Authority & Responsibility', trigger: "new50" },
-      { value: 2, label: 'Funding & Maintenance', trigger: "new50" },
-      { value: 3, label: 'Quality, Taste, & Appropriateness', trigger: "new50" },
-      { value: 4, label: 'Empowerment', trigger: "new50" },
-      { value: 5, label: 'Expertise', trigger: "new50" },
-      { value: 6, label: 'Audience', trigger: "new50" },
-      { value: 7, label: 'Job roles', trigger: "new50" },
-      { value: 8, label: 'Other', trigger: "new50" },
-      { value: 9, label: 'No', trigger: "new71" },
-    ]
+    message: 'Well, that’s a lot to think about... Are there any other issues that you would like to address in the context of process?',
+    trigger: "new50",
   },
   {
     id: "new50",
-    message: 'Please explain, add a pic if it helps',
-    trigger: "new51",
+    options: [
+      { value: 1, label: 'Authority & Responsibility', trigger: "new51" },
+      { value: 2, label: 'Funding & Maintenance', trigger: "new51" },
+      { value: 3, label: 'Quality, Taste, & Appropriateness', trigger: "new51" },
+      { value: 4, label: 'Empowerment', trigger: "new51" },
+      { value: 5, label: 'Expertise', trigger: "new51" },
+      { value: 6, label: 'Audience', trigger: "new51" },
+      { value: 7, label: 'Job roles', trigger: "new51" },
+      { value: 8, label: 'Other', trigger: "new51" },
+      { value: 9, label: 'No', trigger: "new72" },
+    ]
   },
   {
     id: "new51",
-    message: 'Want to take a pic?',
+    message: 'Please explain, add a pic if it helps',
     trigger: "new52",
   },
   {
     id: "new52",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new53" },
-      { value: 2, label: 'No', trigger: "new55" },
-    ]
+    message: 'Want to take a pic?',
+    trigger: "new53",
   },
   {
     id: "new53",
-    waitAction: true,
-    component: <Cam />,
-    trigger: "new54"
+    options: [
+      { value: 1, label: 'Yes', trigger: "new54" },
+      { value: 2, label: 'No', trigger: "new56" },
+    ]
   },
   {
     id: "new54",
-    component: <Test />,
+    waitAction: true,
+    component: <Cam />,
     trigger: "new55"
   },
   {
     id: "new55",
-    user: true,
-    trigger: "new56",
+    component: <Test />,
+    trigger: "new56"
   },
   {
     id: "new56",
-    message: 'Anything else to add?',
+    user: true,
     trigger: "new57",
   },
   {
     id: "new57",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new58" },
-      { value: 2, label: 'No', trigger: "new59" },
-    ]
+    message: 'Anything else to add?',
+    trigger: "new58",
   },
   {
     id: "new58",
-    user: true,
-    trigger: "new56",
-  },
-  {
-    id: "new59",
-    message: 'Would you Like to address a different issue?',
-    trigger: "new60",
-  },
-  {
-    id: "new60",
     options: [
-      { value: 1, label: 'Authority & Responsibility', trigger: "new61" },
-      { value: 2, label: 'Funding & Maintenance', trigger: "new61" },
-      { value: 3, label: 'Quality, Taste, & Appropriateness', trigger: "new61" },
-      { value: 4, label: 'Empowerment', trigger: "new61" },
-      { value: 5, label: 'Expertise', trigger: "new61" },
-      { value: 6, label: 'Audience', trigger: "new61" },
-      { value: 7, label: 'Job roles', trigger: "new61" },
-      { value: 8, label: 'Other', trigger: "new61" },
-      { value: 9, label: 'No', trigger: "new71" },
+      { value: 1, label: 'Yes', trigger: "new59" },
+      { value: 2, label: 'No', trigger: "new60" },
     ]
   },
   {
+    id: "new59",
+    user: true,
+    trigger: "new57",
+  },
+  {
+    id: "new60",
+    message: 'Would you Like to address a different issue?',
+    trigger: "new61",
+  },
+  {
     id: "new61",
-    message: 'Please explain, add a pic if it helps',
-    trigger: "new62",
+    options: [
+      { value: 1, label: 'Authority & Responsibility', trigger: "new62" },
+      { value: 2, label: 'Funding & Maintenance', trigger: "new62" },
+      { value: 3, label: 'Quality, Taste, & Appropriateness', trigger: "new62" },
+      { value: 4, label: 'Empowerment', trigger: "new62" },
+      { value: 5, label: 'Expertise', trigger: "new62" },
+      { value: 6, label: 'Audience', trigger: "new62" },
+      { value: 7, label: 'Job roles', trigger: "new62" },
+      { value: 8, label: 'Other', trigger: "new62" },
+      { value: 9, label: 'No', trigger: "new72" },
+    ]
   },
   {
     id: "new62",
-    message: 'Want to take a pic?',
+    message: 'Please explain, add a pic if it helps',
     trigger: "new63",
   },
   {
     id: "new63",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new64" },
-      { value: 2, label: 'No', trigger: "new66" },
-    ]
+    message: 'Want to take a pic?',
+    trigger: "new64",
   },
   {
     id: "new64",
-    waitAction: true,
-    component: <Cam />,
-    trigger: "new65"
+    options: [
+      { value: 1, label: 'Yes', trigger: "new65" },
+      { value: 2, label: 'No', trigger: "new67" },
+    ]
   },
   {
     id: "new65",
-    component: <Test />,
+    waitAction: true,
+    component: <Cam />,
     trigger: "new66"
   },
   {
     id: "new66",
-    user: true,
-    trigger: "new67",
+    component: <Test />,
+    trigger: "new67"
   },
   {
     id: "new67",
-    message: 'Anything else to add?',
+    user: true,
     trigger: "new68",
   },
   {
     id: "new68",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new69" },
-      { value: 2, label: 'No', trigger: "new71" },
-    ]
+    message: 'Anything else to add?',
+    trigger: "new69",
   },
   {
     id: "new69",
-    message: 'Go on...',
-    trigger: "new70",
+    options: [
+      { value: 1, label: 'Yes', trigger: "new70" },
+      { value: 2, label: 'No', trigger: "new60" },
+    ]
   },
   {
     id: "new70",
-    user: true,
-    trigger: "new67",
+    message: 'Go on...',
+    trigger: "new71",
   },
   {
     id: "new71",
-    message: 'In this place and process, what expertise does the public have to offer?',
-    trigger: "new72",
+    user: true,
+    trigger: "new68",
   },
   {
     id: "new72",
-    user: true,
+    message: 'In this place and process, what expertise does the public have to offer?',
     trigger: "new73",
   },
   {
-    /*THIS SHOULD WOKR*/
     id: "new73",
-    message: 'Anything else to add?',
+    user: true,
     trigger: "new74",
   },
   {
     id: "new74",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new75" },
-      { value: 2, label: 'No', trigger: "new76" },
-    ]
+    message: 'Anything else to add?',
+    trigger: "new75",
   },
   {
     id: "new75",
-    user: true,
-    trigger: "new73",
-  },
-  {
-    id: "new76",
-    message: 'Our research indicates particular issues are left out of conversation when logtistics and process take precedent about the use of a public space. Can you reflect on...?',
-    trigger: "new77",
-  },
-  {
-    id: "new77",
     options: [
-      { value: 1, label: 'Well Being', trigger: "new78" },
-      { value: 2, label: 'Fun', trigger: "new78" },
-      { value: 3, label: 'Enjoyment & Pleasure', trigger: "new78" },
-      { value: 4, label: 'Education', trigger: "new78" },
-      { value: 5, label: 'Community', trigger: "new78" },
-      { value: 6, label: 'Other', trigger: "new78" },
-      { value: 7, label: 'No', trigger: "new82" },
+      { value: 1, label: 'Yes', trigger: "new76" },
+      { value: 2, label: 'No', trigger: "new77" },
     ]
   },
   {
-    id: "new78",
+    id: "new76",
     user: true,
-    trigger: "new79",
+    trigger: "new74",
+  },
+  {
+    id: "new77",
+    message: 'Our research indicates particular issues are left out of the conversation when logistics and process take precedent about the use of a public space. Can you reflect on...?',
+    trigger: "new78",
+  },
+  {
+    id: "new78",
+    options: [
+      { value: 1, label: 'Well Being', trigger: "new79" },
+      { value: 2, label: 'Fun', trigger: "new79" },
+      { value: 3, label: 'Enjoyment & Pleasure', trigger: "new79" },
+      { value: 4, label: 'Education', trigger: "new79" },
+      { value: 5, label: 'Community', trigger: "new79" },
+      { value: 6, label: 'Other', trigger: "new79" },
+      { value: 7, label: 'No', trigger: "new83" },
+    ]
   },
   {
     id: "new79",
-    message: 'Anything else?',
+    message: 'Please explain, add a pic if it helps',
     trigger: "new80",
   },
   {
     id: "new80",
-    options: [
-      { value: 1, label: 'Yes', trigger: "new81" },
-      { value: 2, label: 'No', trigger: "new82" },
-    ]
+    message: 'Want to take a pic?',
+    trigger: "new81",
   },
   {
     id: "new81",
-    user: true,
-    trigger: "new79",
-  },
-  {
-    id: "new82",
-    message: 'Would you like to say anything more about any issues related to our current conversation?',
-    trigger: "new83",
-  },
-  {
-    id: "new83",
     options: [
-      { value: 1, label: 'Yes', trigger: "new84" },
-      { value: 2, label: 'No', trigger:  "Outro" },
+      { value: 1, label: 'Yes', trigger: "new82" },
+      { value: 2, label: 'No', trigger: "new84" },
     ]
   },
   {
+    id: "new82",
+    waitAction: true,
+    component: <Cam />,
+    trigger: "new83"
+  },
+  {
+    id: "new83",
+    component: <Test />,
+    trigger: "new84"
+  },
+  {
     id: "new84",
-    message: 'Tell me about it and take a pic if it helps...',
+    user: true,
     trigger: "new85",
   },
   {
     id: "new85",
-    message: 'Want to take a pic?',
-    trigger: "new85",
+    message: 'Anything else?',
+    trigger: "new86",
   },
   {
     id: "new86",
     options: [
       { value: 1, label: 'Yes', trigger: "new87" },
-      { value: 2, label: 'No', trigger: "new89" },
+      { value: 2, label: 'No', trigger: "new88" },
     ]
   },
   {
     id: "new87",
-    waitAction: true,
-    component: <Cam />,
-    trigger: "new88"
+    user: true,
+    trigger: "new88",
   },
   {
     id: "new88",
-    component: <Test />,
-    trigger: "new89"
+    message: 'Would you Like to address a different issue?',
+    trigger: "new89",
   },
   {
     id: "new89",
-    user: true,
-    trigger: "new90",
+    options: [
+      { value: 1, label: 'Well Being', trigger: "new90" },
+      { value: 2, label: 'Fun', trigger: "new90" },
+      { value: 3, label: 'Enjoyment & Pleasure', trigger: "new90" },
+      { value: 4, label: 'Education', trigger: "new90" },
+      { value: 5, label: 'Community', trigger: "new90" },
+      { value: 6, label: 'Other', trigger: "new90" },
+      { value: 7, label: 'No', trigger: "new100" },
+    ]
   },
   {
     id: "new90",
-    message: 'Anything else?',
+    message: 'Please explain, add a pic if it helps',
     trigger: "new91",
   },
   {
     id: "new91",
+    message: 'Want to take a pic?',
+    trigger: "new92",
+  },
+  {
+    id: "new92",
     options: [
-      { value: 1, label: 'Yes', trigger: "new92" },
+      { value: 1, label: 'Yes', trigger: "new93" },
+      { value: 2, label: 'No', trigger: "new95" },
+    ]
+  },
+  {
+    id: "new93",
+    waitAction: true,
+    component: <Cam />,
+    trigger: "new94"
+  },
+  {
+    id: "new94",
+    component: <Test />,
+    trigger: "new95"
+  },
+  {
+    id: "new95",
+    user: true,
+    trigger: "new96",
+  },
+  {
+    id: "new96",
+    message: 'Anything else to add?',
+    trigger: "new97",
+  },
+  {
+    id: "new97",
+    options: [
+      { value: 1, label: 'Yes', trigger: "new98" },
+      { value: 2, label: 'No', trigger: "new88" },
+    ]
+  },
+  {
+    id: "new98",
+    message: 'Go on...',
+    trigger: "new99",
+  },
+  {
+    id: "new99",
+    user: true,
+    trigger: "new88",
+  },
+  {
+    id: "new100",
+    message: 'Would you like to say anything more about any issues related to our current conversation?',
+    trigger: "new101",
+  },
+  {
+    id: "new101",
+    options: [
+      { value: 1, label: 'Yes', trigger: "new102" },
+      { value: 2, label: 'No', trigger:  "Outro" },
+    ]
+  },
+  {
+    id: "new102",
+    message: 'Tell me about it and take a pic if it helps...',
+    trigger: "new103",
+  },
+  {
+    id: "new103",
+    message: 'Want to take a pic?',
+    trigger: "new104",
+  },
+  {
+    id: "new104",
+    options: [
+      { value: 1, label: 'Yes', trigger: "new105" },
+      { value: 2, label: 'No', trigger: "new107" },
+    ]
+  },
+  {
+    id: "new105",
+    waitAction: true,
+    component: <Cam />,
+    trigger: "new106"
+  },
+  {
+    id: "new106",
+    component: <Test />,
+    trigger: "new107"
+  },
+  {
+    id: "new107",
+    user: true,
+    trigger: "new108",
+  },
+  {
+    id: "new108",
+    message: 'Anything else?',
+    trigger: "new109",
+  },
+  {
+    id: "new109",
+    options: [
+      { value: 1, label: 'Yes', trigger: "new110" },
       { value: 2, label: 'No', trigger:  "Outro"},
     ]
   },
   {
-    id: "new92",
+    id: "new110",
     user: true,
-    trigger: "new90",
+    trigger: "new108",
   },
-
   {
     id: "Outro",
     message: 'That’s pretty much everything!',

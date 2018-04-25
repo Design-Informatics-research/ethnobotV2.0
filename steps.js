@@ -1,118 +1,210 @@
 import React, { Component } from 'react';
-import { View, Image, Alert} from 'react-native';
+import { View, Image, Alert, AsyncStorage} from 'react-native';
+import RNFS from 'react-native-fs';
+
 import Cam from './Cam';
 import Test from './src/Test';
-
 import * as actions from './src/actions';
 
+export const genMessage = ({steps}, geoLoc) => {
+  geoLoc = geoLoc || false;
+  // let msg = steps[Object.keys(steps)[Object.keys(steps).length - 1]].message
+  console.log(steps[Object.keys(steps)[Object.keys(steps).length - 1]])
+  let msg = null;
+  try {
+    msg = JSON.stringify(steps[Object.keys(steps)[Object.keys(steps).length - 1]].message)
+  } catch (err) {
+    console.log("error in assigning value ", err)
+  }
+
+  if (msg == null) msg = steps[Object.keys(steps)[Object.keys(steps).length - 1]].value;
+  saveEntry(msg, geoLoc);
+}
+
+export const genGeolocation = () => {
+  let pos = navigator.geolocation.getCurrentPosition(
+    (position) => {
+      return {lat: position.coords.latitude, lng: position.coords.longitude};
+    },
+    (error) => console.log({ error: error.message }),
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+  );
+  return pos;
+}
+
+export const saveEntry = async (entry, geoLoc) => {
+  geoLoc = geoLoc || false;
+
+  if (geoLoc) {
+    let multiEntries = [
+      [JSON.stringify(new Date().toLocaleString()+" GEO"), JSON.stringify(genGeolocation())],
+      [JSON.stringify(new Date().toLocaleString()), JSON.stringify(entry)]
+    ];
+    try {
+      // AsyncStorage.clear()
+      AsyncStorage.multiSet(multiEntries);
+    } catch (error) {
+      console.log(error)
+    }
+  } else {
+    try {
+      await AsyncStorage.setItem(new Date().toLocaleString(), entry);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+}
+
+export const debugFun = async () => {
+  try {
+    AsyncStorage.getAllKeys().then(keys => AsyncStorage.multiGet(keys)
+    .then((result) => {
+      // console.log(result)
+      exportDialog(result)
+    }));
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const exportDialog = (dialog) => {
+  let date = new Date();
+  let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+
+  let path = RNFS.DocumentDirectoryPath +'/dialog.json';
+
+  // write the file
+  RNFS.writeFile(path, String(dialog), 'utf8')
+    .then((success) => {
+      console.log('FILE WRITTEN!');
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+}
+
+export const wipeCachedData = () => {
+  try {
+    AsyncStorage.clear()
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export default steps = [
+  ////////////////////
+  /* intro */
+  ////////////////////
+
   {
     id: "intro1",
     message: 'Hello, I am Ethnobot',
-    trigger: ({ value, steps }) => {
-      console.log("time", new Date().toLocaleString())
-      return "name"
-    }
+    trigger: (steps) => { genMessage(steps, true); return "name" }
   },
   {
     id: "name",
     message: "What's your name?",
-    trigger: "intro2",
+    trigger: (steps) => { genMessage(steps); return "intro2" }
   },
   {
     id: "intro2",
     user: true,
-    trigger: "intro3"
+    trigger: (steps) => { genMessage(steps); return "intro3" }
   },
   {
     id: "intro3",
     message: 'Hi {previousValue}, nice to meet you!',
-    trigger: 'jobRole',
+    trigger: (steps) => { genMessage(steps); return "jobRole" }
   },
   {
     id: 'jobRole',
     message: "What’s your Job?",
-    trigger: "intro4",
+    trigger: (steps) => { genMessage(steps); return "intro4" }
   },
   {
     id: "intro4",
     user: true,
-    trigger: "intro5",
+    trigger: (steps) => { genMessage(steps); return "intro5" }
   },
   {
     id: "intro5",
     message: 'Today I want you to help with a specific strand of Research for the Edinburgh City Council’s Public art research Project.',
-    trigger: "intro6"
+    trigger: (steps) => { genMessage(steps); return "intro6" }
   },
   {
     id: "intro6",
     message: 'You will take me on a curated experience involving three works of art; art that is transformative, contentious, and new.',
-    trigger: "intro7",
+    trigger: (steps) => { genMessage(steps); return "intro7" }
   },
   {
     id: "intro7",
     message: 'Are you ready to get started?',
-    trigger: "intro8",
+    trigger: (steps) => { genMessage(steps); return "intro8" }
   },
   {
     id: "intro8",
     options: [
-      { value: 1, label: 'Yes', trigger: "intro11" },
-      { value: 2, label: 'No', trigger: "intro9" },
+      { value: 'Yes', label: 'Yes', trigger: (steps) => { genMessage(steps); return "intro11"} },
+      { value: 'No', label: 'No', trigger: (steps) => { genMessage(steps); return "intro9"}},
     ]
   },
   {
     id: "intro9",
     message: 'Well why not?',
-    trigger: "intro10",
+    trigger: (steps) => { genMessage(steps); return "intro10"}
   },
   {
     id: "intro10",
     user: true,
-    trigger: "intro7",
+    trigger: (steps) => { genMessage(steps); return "intro7"}
   },
   {
     id: "intro11",
     message: 'Great!',
-    trigger: 'Transformative'
+    trigger: (steps) => { genMessage(steps); return "Transformative"}
   },
+
+  ////////////////////
+  /* Transformative */
+  ////////////////////
+
   {
     id: "Transformative",
     message: 'Please take me to a public work of art that is transformative...',
-    trigger: "trans1"
+    trigger: (steps) => { genMessage(steps); return "trans1"}
   },
   {
     id: "trans1",
     message: 'Ok, let me know when we get there.',
-    trigger: "trans2"
+    trigger: (steps) => { genMessage(steps); return "trans2"}
   },
   {
     id: "trans2",
     message: 'Are we there yet?',
-    trigger: "trans3",
+    trigger: (steps) => { genMessage(steps); return "trans3"}
   },
   {
     id: "trans3",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans12" },
-      { value: 2, label: 'No, I got distracted', trigger: "trans4" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans12"} },
+      { value: "No", label: 'No, I got distracted', trigger: (steps) => { genMessage(steps, true); return "trans4"} },
     ]
   },
   {
     id: "trans4",
     message: 'What’s going on? Take a pic and tell me about it...',
-    trigger: "trans5",
+    trigger: (steps) => { genMessage(steps); return "trans5"}
   },
   {
     id: "trans5",
     message: 'Want to take a pic?',
-    trigger: "trans6",
+    trigger: (steps) => { genMessage(steps); return "trans6"}
   },
   {
     id: "trans6",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans7" },
-      { value: 2, label: 'No', trigger: "trans9" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans7"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans9"} },
     ]
   },
   {
@@ -129,18 +221,18 @@ export default steps = [
   {
     id: "trans9",
     user: true,
-    trigger: "trans10",
+    trigger: (steps) => { genMessage(steps); return "trans10"}
   },
   {
     id: "trans10",
     message: 'Anything else to add?',
-    trigger: "trans11",
+    trigger: (steps) => { genMessage(steps); debugFun(); return "trans11"}
   },
   {
     id: "trans11",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans9" },
-      { value: 2, label: 'No', trigger: "trans1" },
+      { value: "Yes", label: 'Yes', trigger: "trans9" },
+      { value: "No", label: 'No', trigger: "trans1" },
     ]
   },
   {
@@ -171,7 +263,7 @@ export default steps = [
   },
   {
     id: "trans17",
-    message: 'Alright, I am gonna ask a some deep questions now.',
+    message: 'Alright, I am gonna ask some deep questions now.',
     trigger: "trans18",
   },
 
@@ -193,8 +285,8 @@ export default steps = [
   {
     id: "trans21",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans22" },
-      { value: 2, label: 'No', trigger: "trans24" },
+      { value: "Yes", label: 'Yes', trigger: "trans22" },
+      { value: "No", label: 'No', trigger: "trans24" },
     ]
   },
   {
@@ -215,8 +307,8 @@ export default steps = [
   {
     id: "trans25",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans31" },
-      { value: 2, label: 'No', trigger: "trans26" },
+      { value: "Yes", label: 'Yes', trigger: "trans31" },
+      { value: "No", label: 'No', trigger: "trans26" },
     ]
   },
   {
@@ -237,8 +329,8 @@ export default steps = [
   {
     id: "trans29",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans30" },
-      { value: 2, label: 'No', trigger: "trans40" },
+      { value: "Yes", label: 'Yes', trigger: "trans30" },
+      { value: "No", label: 'No', trigger: "trans40" },
     ]
   },
   {
@@ -259,8 +351,8 @@ export default steps = [
   {
     id: "trans33",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans34" },
-      { value: 2, label: 'No', trigger: "trans36" },
+      { value: "Yes", label: 'Yes', trigger: "trans34" },
+      { value: "No", label: 'No', trigger: "trans36" },
     ]
   },
   {
@@ -287,8 +379,8 @@ export default steps = [
   {
     id: "trans38",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans39" },
-      { value: 2, label: 'No', trigger: "trans40" },
+      { value: "Yes", label: 'Yes', trigger: "trans39" },
+      { value: "No", label: 'No', trigger: "trans40" },
     ]
   },
   {
@@ -304,8 +396,8 @@ export default steps = [
   {
     id: "trans41",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans42" },
-      { value: 2, label: 'No', trigger: "trans47" },
+      { value: "Yes", label: 'Yes', trigger: "trans42" },
+      { value: "No", label: 'No', trigger: "trans47" },
     ]
   },
   {
@@ -326,8 +418,8 @@ export default steps = [
   {
     id: "trans45",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans46" },
-      { value: 2, label: 'No', trigger:  "trans47"},
+      { value: "Yes", label: 'Yes', trigger: "trans46" },
+      { value: "No", label: 'No', trigger:  "trans47"},
     ]
   },
   {
@@ -343,8 +435,8 @@ export default steps = [
   {
     id: "trans48",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans49" },
-      { value: 2, label: 'No', trigger: "trans58" },
+      { value: "Yes", label: 'Yes', trigger: "trans49" },
+      { value: "No", label: 'No', trigger: "trans58" },
     ]
   },
   {
@@ -360,8 +452,8 @@ export default steps = [
   {
     id: "trans51",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans52" },
-      { value: 2, label: 'No', trigger: "trans54" },
+      { value: "Yes", label: 'Yes', trigger: "trans52" },
+      { value: "No", label: 'No', trigger: "trans54" },
     ]
   },
   {
@@ -388,8 +480,8 @@ export default steps = [
   {
     id: "trans56",
     options: [
-      { value: 1, label: 'Yes', trigger: "trans57" },
-      { value: 2, label: 'No', trigger:  "trans58"},
+      { value: "Yes", label: 'Yes', trigger: "trans57" },
+      { value: "Yes", label: 'No', trigger:  "trans58"},
     ]
   },
   {
@@ -402,6 +494,11 @@ export default steps = [
     message: 'Great let’s move on...',
     trigger: "Contentious",
   },
+
+  ////////////////////
+  /* Contentious */
+  ////////////////////
+
   {
     id: "Contentious",
     message: 'Please take me to a public work of art that is contentious...',
@@ -420,8 +517,8 @@ export default steps = [
   {
     id: "con3",
     options: [
-      { value: 1, label: 'Yes', trigger: "con12" },
-      { value: 2, label: 'No, I got distracted', trigger: "con4" },
+      { value: "Yes", label: 'Yes', trigger: "con12" },
+      { value: "No", label: 'No, I got distracted', trigger: "con4" },
     ]
   },
   {
@@ -437,8 +534,8 @@ export default steps = [
   {
     id: "con6",
     options: [
-      { value: 1, label: 'Yes', trigger: "con7" },
-      { value: 2, label: 'No', trigger: "con9" },
+      { value: "Yes", label: 'Yes', trigger: "con7" },
+      { value: "No", label: 'No', trigger: "con9" },
     ]
   },
   {
@@ -465,8 +562,8 @@ export default steps = [
   {
     id: "con11",
     options: [
-      { value: 1, label: 'Yes', trigger: "con9" },
-      { value: 2, label: 'No', trigger: "con1" },
+      { value: "Yes", label: 'Yes', trigger: "con9" },
+      { value: "No", label: 'No', trigger: "con1" },
     ]
   },
   {
@@ -514,8 +611,8 @@ export default steps = [
   {
     id: "con20",
     options: [
-      { value: 1, label: 'Yes', trigger: "con21" },
-      { value: 2, label: 'No', trigger: "con22" },
+      { value: "Yes", label: 'Yes', trigger: "con21" },
+      { value: "No", label: 'No', trigger: "con22" },
     ]
   },
   {
@@ -531,8 +628,8 @@ export default steps = [
   {
     id: "con23",
     options: [
-      { value: 1, label: 'Yes', trigger: "con24" },
-      { value: 2, label: 'No', trigger:  "con33" },
+      { value: "Yes", label: 'Yes', trigger: "con24" },
+      { value: "No", label: 'No', trigger:  "con33" },
     ]
   },
   {
@@ -548,8 +645,8 @@ export default steps = [
   {
     id: "con26",
     options: [
-      { value: 1, label: 'Yes', trigger: "con27" },
-      { value: 2, label: 'No', trigger: "con29" },
+      { value: "Yes", label: 'Yes', trigger: "con27" },
+      { value: "No", label: 'No', trigger: "con29" },
     ]
   },
   {
@@ -576,8 +673,8 @@ export default steps = [
   {
     id: "con31",
     options: [
-      { value: 1, label: 'Yes', trigger: "con32" },
-      { value: 2, label: 'No', trigger:  "con35"},
+      { value: "Yes", label: 'Yes', trigger: "con32" },
+      { value: "No", label: 'No', trigger:  "con35"},
     ]
   },
   {
@@ -603,8 +700,8 @@ export default steps = [
   {
     id: "con36",
     options: [
-      { value: 1, label: 'Yes', trigger: "con37" },
-      { value: 2, label: 'No', trigger:  "con46" },
+      { value: "Yes", label: 'Yes', trigger: "con37" },
+      { value: "No", label: 'No', trigger:  "con46" },
     ]
   },
   {
@@ -620,8 +717,8 @@ export default steps = [
   {
     id: "con39",
     options: [
-      { value: 1, label: 'Yes', trigger: "con40" },
-      { value: 2, label: 'No', trigger: "con42" },
+      { value: "Yes", label: 'Yes', trigger: "con40" },
+      { value: "No", label: 'No', trigger: "con42" },
     ]
   },
   {
@@ -648,8 +745,8 @@ export default steps = [
   {
     id: "con44",
     options: [
-      { value: 1, label: 'Yes', trigger: "con45" },
-      { value: 2, label: 'No', trigger:  "con48"},
+      { value: "Yes", label: 'Yes', trigger: "con45" },
+      { value: "No", label: 'No', trigger:  "con48"},
     ]
   },
   {
@@ -675,8 +772,8 @@ export default steps = [
   {
     id: "con49",
     options: [
-      { value: 1, label: 'Yes', trigger: "con50" },
-      { value: 2, label: 'No', trigger: "con59" },
+      { value: "Yes", label: 'Yes', trigger: "con50" },
+      { value: "No", label: 'No', trigger: "con59" },
     ]
   },
   {
@@ -734,6 +831,11 @@ export default steps = [
     message: 'Great let’s move on...',
     trigger: "newArt",
   },
+
+  ////////////////////
+  /* newArt */
+  ////////////////////
+
   {
     id: "newArt",
     message: 'Could you please take me to a public space that could use a new work of art or somewhere where a public work of art could be replaced?',
@@ -915,16 +1017,11 @@ export default steps = [
       { value: 2, label: 'No', trigger: "new37" },
     ]
   },
-
-  //additon
-
   {
     id: "new33",
     user: true,
     trigger: "new34",
   },
-
-  //end of addition
   {
     id: "new34",
     message: 'Is that all?',
@@ -1377,6 +1474,11 @@ export default steps = [
     user: true,
     trigger: "new108",
   },
+
+  ////////////////////
+  /* Outro */
+  ////////////////////
+
   {
     id: "Outro",
     message: 'That’s pretty much everything!',

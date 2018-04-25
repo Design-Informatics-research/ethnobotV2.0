@@ -5,9 +5,11 @@ const width = Dimensions.get('window').width;
 CameraStyle = StyleSheet.create({
   container: {
     flex: 1,
-    height: height*.8,
     flexDirection: 'column',
     backgroundColor: 'black'
+  },
+  containerHeight: {
+    height: height*.5
   },
   preview: {
     flex: 1,

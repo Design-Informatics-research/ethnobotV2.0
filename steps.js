@@ -8,7 +8,6 @@ import * as actions from './src/actions';
 
 export const genMessage = ({steps}, geoLoc) => {
   geoLoc = geoLoc || false;
-  // let msg = steps[Object.keys(steps)[Object.keys(steps).length - 1]].message
   console.log(steps[Object.keys(steps)[Object.keys(steps).length - 1]])
   let msg = null;
   try {
@@ -41,7 +40,6 @@ export const saveEntry = async (entry, geoLoc) => {
       [JSON.stringify(new Date().toLocaleString()), JSON.stringify(entry)]
     ];
     try {
-      // AsyncStorage.clear()
       AsyncStorage.multiSet(multiEntries);
     } catch (error) {
       console.log(error)
@@ -59,7 +57,7 @@ export const debugFun = async () => {
   try {
     AsyncStorage.getAllKeys().then(keys => AsyncStorage.multiGet(keys)
     .then((result) => {
-      // console.log(result)
+      // console.log("Me ",result[0])
       exportDialog(result)
     }));
   } catch (error) {
@@ -99,12 +97,12 @@ export default steps = [
   {
     id: "intro1",
     message: 'Hello, I am Ethnobot',
-    trigger: (steps) => { genMessage(steps, true); return "name" }
+    trigger: (steps) => { genMessage(steps); return "name" }
   },
   {
     id: "name",
     message: "What's your name?",
-    trigger: (steps) => { genMessage(steps); return "intro2" }
+    trigger: (steps) => { genMessage(steps, true); return "intro2" }
   },
   {
     id: "intro2",
@@ -145,7 +143,7 @@ export default steps = [
     id: "intro8",
     options: [
       { value: 'Yes', label: 'Yes', trigger: (steps) => { genMessage(steps); return "intro11"} },
-      { value: 'No', label: 'No', trigger: (steps) => { genMessage(steps); return "intro9"}},
+      { value: 'No', label: 'No', trigger: (steps) => { genMessage(steps); return "intro9"} },
     ]
   },
   {
@@ -161,7 +159,7 @@ export default steps = [
   {
     id: "intro11",
     message: 'Great!',
-    trigger: (steps) => { genMessage(steps); return "Transformative"}
+    trigger: (steps) => { genMessage(steps, true); return "Transformative"}
   },
 
   ////////////////////
@@ -226,19 +224,19 @@ export default steps = [
   {
     id: "trans10",
     message: 'Anything else to add?',
-    trigger: (steps) => { genMessage(steps); debugFun(); return "trans11"}
+    trigger: (steps) => { genMessage(steps); return "trans11"}
   },
   {
     id: "trans11",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans9" },
-      { value: "No", label: 'No', trigger: "trans1" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans9"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans1"} },
     ]
   },
   {
     id: "trans12",
     message: 'What are we looking at? Take a pic and tell me it’s name.',
-    trigger: "trans13",
+    trigger: (steps) => { genMessage(steps, true); return "trans13"}
   },
   {
     id: "trans13",
@@ -254,105 +252,105 @@ export default steps = [
   {
     id: "trans15",
     message: 'and it’s name.',
-    trigger: "trans16",
+    trigger: (steps) => { genMessage(steps); return "trans16"}
   },
   {
     id: "trans16",
     user: true,
-    trigger: "trans17",
+    trigger: (steps) => { genMessage(steps); return "trans17"}
   },
   {
     id: "trans17",
     message: 'Alright, I am gonna ask some deep questions now.',
-    trigger: "trans18",
+    trigger: (steps) => { genMessage(steps); return "trans18"}
   },
 
   {
     id: "trans18",
     message: 'Who or what is this transformative for and why?',
-    trigger: "trans19",
+    trigger: (steps) => { genMessage(steps); return "trans19"}
   },
   {
     id: "trans19",
     user: true,
-    trigger: "trans20",
+    trigger: (steps) => { genMessage(steps); return "trans20"}
   },
   {
     id: "trans20",
     message: 'Are others affected?',
-    trigger: "trans21",
+    trigger: (steps) => { genMessage(steps); return "trans21"}
   },
   {
     id: "trans21",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans22" },
-      { value: "No", label: 'No', trigger: "trans24" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans22"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans24"} },
     ]
   },
   {
     id: "trans22",
     message: 'Who and Why?',
-    trigger: "trans23",
+    trigger: (steps) => { genMessage(steps); return "trans23"}
   },
   {
     id: "trans23",
     user: true,
-    trigger: "trans20",
+    trigger: (steps) => { genMessage(steps); return "trans20"}
   },
   {
     id: "trans24",
     message: 'Could you please expand on the quality, taste, and appropriateness of this work of art?',
-    trigger: "trans25",
+    trigger: (steps) => { genMessage(steps); return "trans25"}
   },
   {
     id: "trans25",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans31" },
-      { value: "No", label: 'No', trigger: "trans26" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans31"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans26"} },
     ]
   },
   {
     id: "trans26",
     message: 'No, why not?',
-    trigger: "trans27",
+    trigger: (steps) => { genMessage(steps); return "trans27"}
   },
   {
     id: "trans27",
     user: true,
-    trigger: "trans28",
+    trigger: (steps) => { genMessage(steps); return "trans28"}
   },
   {
     id: "trans28",
     message: 'Anything else to add?',
-    trigger: "trans29",
+    trigger: (steps) => { genMessage(steps); return "trans29"}
   },
   {
     id: "trans29",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans30" },
-      { value: "No", label: 'No', trigger: "trans40" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans30"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans40"} },
     ]
   },
   {
     id: "trans30",
     user: true,
-    trigger: "trans28",
+    trigger: (steps) => { genMessage(steps); return "trans28"}
   },
   {
     id: "trans31",
     message: 'Focus on any or all points and take a pic if it helps.',
-    trigger: "trans32",
+    trigger: (steps) => { genMessage(steps); return "trans32"}
   },
   {
     id: "trans32",
     message: 'Want to take a pic?',
-    trigger: "trans33",
+    trigger: (steps) => { genMessage(steps); return "trans33"}
   },
   {
     id: "trans33",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans34" },
-      { value: "No", label: 'No', trigger: "trans36" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans34"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans36"} },
     ]
   },
   {
@@ -369,91 +367,92 @@ export default steps = [
   {
     id: "trans36",
     user: true,
-    trigger: "trans37",
+    trigger: (steps) => { genMessage(steps); return "trans37"}
   },
   {
     id: "trans37",
     message: 'Anything else to add?',
-    trigger: "trans38",
+    trigger: (steps) => { genMessage(steps); return "trans38"}
+
   },
   {
     id: "trans38",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans39" },
-      { value: "No", label: 'No', trigger: "trans40" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans39"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans40"} },
     ]
   },
   {
     id: "trans39",
     user: true,
-    trigger: "trans40",
+    trigger: (steps) => { genMessage(steps); return "trans37"}
   },
   {
     id: "trans40",
     message: 'Could you expand on the context about this work of art?',
-    trigger: "trans41",
+    trigger: (steps) => { genMessage(steps); return "trans41"}
   },
   {
     id: "trans41",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans42" },
-      { value: "No", label: 'No', trigger: "trans47" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans42"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans47"} },
     ]
   },
   {
     id: "trans42",
     message: 'Go on...',
-    trigger: "trans43",
+    trigger: (steps) => { genMessage(steps); return "trans43"}
   },
   {
     id: "trans43",
     user: true,
-    trigger: "trans44",
+    trigger: (steps) => { genMessage(steps); return "trans44"}
   },
   {
     id: "trans44",
     message: 'Anything else to add?',
-    trigger: "trans45",
+    trigger: (steps) => { genMessage(steps); return "trans45"}
   },
   {
     id: "trans45",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans46" },
-      { value: "No", label: 'No', trigger:  "trans47"},
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans46"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans47"} },
     ]
   },
   {
     id: "trans46",
     user: true,
-    trigger: "trans44",
+    trigger: (steps) => { genMessage(steps); return "trans44"}
   },
   {
     id: "trans47",
     message: 'Would you like to say anything else about this work of art or any issue related?',
-    trigger: "trans48",
+    trigger: (steps) => { genMessage(steps); return "trans48"}
   },
   {
     id: "trans48",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans49" },
-      { value: "No", label: 'No', trigger: "trans58" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans49"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans58"} },
     ]
   },
   {
     id: "trans49",
     message: 'Tell me about it and take a pic if it helps...',
-    trigger: "trans50",
+    trigger: (steps) => { genMessage(steps); return "trans50"}
   },
   {
     id: "trans50",
     message: 'Want to take a pic?',
-    trigger: "trans51",
+    trigger: (steps) => { genMessage(steps); return "trans51"}
   },
   {
     id: "trans51",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans52" },
-      { value: "No", label: 'No', trigger: "trans54" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans52"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans54"} },
     ]
   },
   {
@@ -470,29 +469,29 @@ export default steps = [
   {
     id: "trans54",
     user: true,
-    trigger: "trans55",
+    trigger: (steps) => { genMessage(steps); return "trans55"}
   },
   {
     id: "trans55",
     message: 'Anything else to add?',
-    trigger: "trans56",
+    trigger: (steps) => { genMessage(steps); return "trans56"}
   },
   {
     id: "trans56",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "trans57" },
-      { value: "Yes", label: 'No', trigger:  "trans58"},
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans57"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans58"} },
     ]
   },
   {
     id: "trans57",
     user: true,
-    trigger: "trans55",
+    trigger: (steps) => { genMessage(steps); return "trans55"}
   },
   {
     id: "trans58",
     message: 'Great let’s move on...',
-    trigger: "Contentious",
+    trigger: (steps) => { genMessage(steps, true); return "Contentious"}
   },
 
   ////////////////////
@@ -502,40 +501,40 @@ export default steps = [
   {
     id: "Contentious",
     message: 'Please take me to a public work of art that is contentious...',
-    trigger: "con1"
+    trigger: (steps) => { genMessage(steps); return "con1"}
   },
   {
     id: "con1",
     message: 'Ok, let me know when we get there.',
-    trigger: "con2"
+    trigger: (steps) => { genMessage(steps); return "con2"}
   },
   {
     id: "con2",
     message: 'Are we there yet?',
-    trigger: "con3",
+    trigger: (steps) => { genMessage(steps); return "con3"}
   },
   {
     id: "con3",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con12" },
-      { value: "No", label: 'No, I got distracted', trigger: "con4" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con12"} },
+      { value: "No", label: 'No, I got distracted', trigger: (steps) => { genMessage(steps, true); return "con4"} },
     ]
   },
   {
     id: "con4",
     message: 'What’s going on? Take a pic and tell me about it...',
-    trigger: "con5",
+    trigger: (steps) => { genMessage(steps); return "con5"}
   },
   {
     id: "con5",
     message: 'Want to take a pic?',
-    trigger: "con6",
+    trigger: (steps) => { genMessage(steps); return "con6"}
   },
   {
     id: "con6",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con7" },
-      { value: "No", label: 'No', trigger: "con9" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con7"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con9"} },
     ]
   },
   {
@@ -552,24 +551,24 @@ export default steps = [
   {
     id: "con9",
     user: true,
-    trigger: "con10",
+    trigger: (steps) => { genMessage(steps); return "con10"}
   },
   {
     id: "con10",
     message: 'Anything else to add?',
-    trigger: "con11",
+    trigger: (steps) => { genMessage(steps); return "con11"}
   },
   {
     id: "con11",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con9" },
-      { value: "No", label: 'No', trigger: "con1" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con9"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con1"} },
     ]
   },
   {
     id: "con12",
     message: 'What are we looking at? Take a pic and tell me it’s name.',
-    trigger: "con13",
+    trigger: (steps) => { genMessage(steps, true); return "con13"}
   },
   {
     id: "con13",
@@ -585,68 +584,68 @@ export default steps = [
   {
     id: "con15",
     message: 'and it’s name.',
-    trigger: "con16",
+    trigger: (steps) => { genMessage(steps); return "con16"}
   },
   {
     id: "con16",
     user: true,
-    trigger: "con17",
+    trigger: (steps) => { genMessage(steps); return "con17"}
   },
   {
     id: "con17",
     message: 'What makes this work of art contentious? And for whom?',
-    trigger: "con18",
+    trigger: (steps) => { genMessage(steps); return "con18"}
   },
 
   {
     id: "con18",
     user: true,
-    trigger: "con19",
+    trigger: (steps) => { genMessage(steps); return "con19"}
   },
   {
     id: "con19",
     message: 'Anything else to add?',
-    trigger: "con20",
+    trigger: (steps) => { genMessage(steps); return "con20"}
   },
   {
     id: "con20",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con21" },
-      { value: "No", label: 'No', trigger: "con22" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con21"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con22"} },
     ]
   },
   {
     id: "con21",
     user: true,
-    trigger: "con19",
+    trigger: (steps) => { genMessage(steps); return "con19"}
   },
   {
     id: "con22",
     message: 'Our research shows contention raises issues of inclusivity and exclusivity... Does this work of art have issues with inclusivity and exclusivity?',
-    trigger: "con23",
+    trigger: (steps) => { genMessage(steps); return "con23"}
   },
   {
     id: "con23",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con24" },
-      { value: "No", label: 'No', trigger:  "con33" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con24"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con33"} },
     ]
   },
   {
     id: "con24",
     message: 'What are the issues and affected parties? Take a pic if it helps...',
-    trigger: "con25",
+    trigger: (steps) => { genMessage(steps); return "con25"}
   },
   {
     id: "con25",
     message: 'Want to take a pic?',
-    trigger: "con26",
+    trigger: (steps) => { genMessage(steps); return "con26"}
   },
   {
     id: "con26",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con27" },
-      { value: "No", label: 'No', trigger: "con29" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con27"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con29"} },
     ]
   },
   {
@@ -663,62 +662,62 @@ export default steps = [
   {
     id: "con29",
     user: true,
-    trigger: "con30",
+    trigger: (steps) => { genMessage(steps); return "con30"}
   },
   {
     id: "con30",
     message: 'Anything else to add?',
-    trigger: "con31",
+    trigger: (steps) => { genMessage(steps); return "con31"}
   },
   {
     id: "con31",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con32" },
-      { value: "No", label: 'No', trigger:  "con35"},
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con32"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con35"} },
     ]
   },
   {
     id: "con32",
     user: true,
-    trigger: "con30",
+    trigger: (steps) => { genMessage(steps); return "con30"}
   },
   {
     id: "con33",
     message: 'No, how so?',
-    trigger: "con34",
+    trigger: (steps) => { genMessage(steps); return "con34"}
   },
   {
     id: "con34",
     user: true,
-    trigger: "con35",
+    trigger: (steps) => { genMessage(steps); return "con35"}
   },
   {
     id: "con35",
     message: 'Similarly contentious works of art have elements of trust and risk. Can you expand on either or both?',
-    trigger: "con36",
+    trigger: (steps) => { genMessage(steps); return "con36"}
   },
   {
     id: "con36",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con37" },
-      { value: "No", label: 'No', trigger:  "con46" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con37"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con46"} },
     ]
   },
   {
     id: "con37",
     message: 'Tell me about it and take a pic if it helps...',
-    trigger: "con38",
+    trigger: (steps) => { genMessage(steps); return "con38"}
   },
   {
     id: "con38",
     message: 'Want to take a pic?',
-    trigger: "con39",
+    trigger: (steps) => { genMessage(steps); return "con39"}
   },
   {
     id: "con39",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con40" },
-      { value: "No", label: 'No', trigger: "con42" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con40"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con42"} },
     ]
   },
   {
@@ -735,62 +734,62 @@ export default steps = [
   {
     id: "con42",
     user: true,
-    trigger: "con43",
+    trigger: (steps) => { genMessage(steps); return "con43"}
   },
   {
     id: "con43",
     message: 'Anything else to add?',
-    trigger: "con44",
+    trigger: (steps) => { genMessage(steps); return "con44"}
   },
   {
     id: "con44",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con45" },
-      { value: "No", label: 'No', trigger:  "con48"},
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con45"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con48"} },
     ]
   },
   {
     id: "con45",
     user: true,
-    trigger: "con43",
+    trigger: (steps) => { genMessage(steps); return "con43"}
   },
   {
     id: "con46",
     message: 'No, why not?',
-    trigger: "con47",
+    trigger: (steps) => { genMessage(steps); return "con47"}
   },
   {
     id: "con47",
     user: true,
-    trigger: "con48",
+    trigger: (steps) => { genMessage(steps); return "con48"}
   },
   {
     id: "con48",
     message: 'Would you like to say anything more about this work of art or any issue related?',
-    trigger: "con49",
+    trigger: (steps) => { genMessage(steps); return "con49"}
   },
   {
     id: "con49",
     options: [
-      { value: "Yes", label: 'Yes', trigger: "con50" },
-      { value: "No", label: 'No', trigger: "con59" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con50"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con59"} },
     ]
   },
   {
     id: "con50",
     message: 'Tell me about it and take a pic if it helps...',
-    trigger: "con51",
+    trigger: (steps) => { genMessage(steps); return "con51"}
   },
   {
     id: "con51",
     message: 'Want to take a pic?',
-    trigger: "con52",
+    trigger: (steps) => { genMessage(steps); return "con52"}
   },
   {
     id: "con52",
     options: [
-      { value: 1, label: 'Yes', trigger: "con53" },
-      { value: 2, label: 'No', trigger: "con55" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con53"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con55"} },
     ]
   },
   {
@@ -807,29 +806,29 @@ export default steps = [
   {
     id: "con55",
     user: true,
-    trigger: "con56",
+    trigger: (steps) => { genMessage(steps); return "con56"}
   },
   {
     id: "con56",
     message: 'Anything else to add?',
-    trigger: "con57",
+    trigger: (steps) => { genMessage(steps); return "con57"}
   },
   {
     id: "con57",
     options: [
-      { value: 1, label: 'Yes', trigger: "con58" },
-      { value: 2, label: 'No', trigger:  "con59"},
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con58"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con59"} },
     ]
   },
   {
     id: "con58",
     user: true,
-    trigger: "con56",
+    trigger: (steps) => { genMessage(steps); return "con56"}
   },
   {
     id: "con59",
     message: 'Great let’s move on...',
-    trigger: "newArt",
+    trigger: (steps) => { genMessage(steps, true); return "newArt"}
   },
 
   ////////////////////
@@ -839,40 +838,40 @@ export default steps = [
   {
     id: "newArt",
     message: 'Could you please take me to a public space that could use a new work of art or somewhere where a public work of art could be replaced?',
-    trigger: "new1"
+    trigger: (steps) => { genMessage(steps); return "new1"}
   },
   {
     id: "new1",
     message: 'Ok, let me know when we get there.',
-    trigger: "new2"
+    trigger: (steps) => { genMessage(steps); return "new2"}
   },
   {
     id: "new2",
     message: 'Are we there yet?',
-    trigger: "new3",
+    trigger: (steps) => { genMessage(steps); return "new3"}
   },
   {
     id: "new3",
     options: [
-      { value: 1, label: 'Yes', trigger: "new12" },
-      { value: 2, label: 'No, I got distracted', trigger: "new4" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new12"} },
+      { value: "No, I got distracted", label: 'No, I got distracted', trigger: (steps) => { genMessage(steps, true); return "new4"} },
     ]
   },
   {
     id: "new4",
     message: 'What’s going on? Take a pic and tell me about it...',
-    trigger: "new5",
+    trigger: (steps) => { genMessage(steps); return "new5"}
   },
   {
     id: "new5",
     message: 'Want to take a pic?',
-    trigger: "new6",
+    trigger: (steps) => { genMessage(steps); return "new6"}
   },
   {
     id: "new6",
     options: [
-      { value: 1, label: 'Yes', trigger: "new7" },
-      { value: 2, label: 'No', trigger: "new9" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new7"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new9"} },
     ]
   },
   {
@@ -889,36 +888,36 @@ export default steps = [
   {
     id: "new9",
     user: true,
-    trigger: "new10",
+    trigger: (steps) => { genMessage(steps); return "new10"}
   },
   {
     id: "new10",
     message: 'Anything else to add?',
-    trigger: "new11",
+    trigger: (steps) => { genMessage(steps); return "new11"}
   },
   {
     id: "new11",
     options: [
-      { value: 1, label: 'Yes', trigger: "new9" },
-      { value: 2, label: 'No', trigger: "new1" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new9"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new1"} },
     ]
   },
   {
     id: "new12",
     message: 'Are we placing or replacing?',
-    trigger: "new13",
+    trigger: (steps) => { genMessage(steps); return "new13"}
   },
   {
     id: "new13",
     options: [
-      { value: 1, label: 'New', trigger: "new18" },
-      { value: 2, label: 'Replace', trigger: "new14" },
+      { value: "New", label: 'New', trigger: (steps) => { genMessage(steps); return "new18"} },
+      { value: "Replace", label: 'Replace', trigger: (steps) => { genMessage(steps); return "new14"} },
     ]
   },
   {
     id: "new14",
     message: 'What are we replacing and why? Please take a pic...',
-    trigger: "new15",
+    trigger: (steps) => { genMessage(steps); return "new15"}
   },
   {
     id: "new15",
@@ -934,12 +933,12 @@ export default steps = [
   {
     id: "new17",
     user: true,
-    trigger: "new29",
+    trigger: (steps) => { genMessage(steps); return "new29"}
   },
   {
     id: "new18",
     message: 'Where are we? Take a pic too',
-    trigger: "new19",
+    trigger: (steps) => { genMessage(steps, true); return "new19"}
   },
   {
     id: "new19",
@@ -955,28 +954,28 @@ export default steps = [
   {
     id: "new21",
     user: true,
-    trigger: "new22",
+    trigger: (steps) => { genMessage(steps); return "new22"}
   },
   {
     id: "new22",
     message: 'Why have you chosen this place?',
-    trigger: "new23",
+    trigger: (steps) => { genMessage(steps); return "new23"}
   },
   {
     id: "new23",
     message: 'Add a pic if it helps...',
-    trigger: "new24",
+    trigger: (steps) => { genMessage(steps); return "new24"}
   },
   {
     id: "new24",
     message: 'Want to take a pic?',
-    trigger: "new25",
+    trigger: (steps) => { genMessage(steps); return "new25"}
   },
   {
     id: "new25",
     options: [
-      { value: 1, label: 'Yes', trigger: "new26" },
-      { value: 2, label: 'No', trigger: "new28" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new26"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new28"} },
     ]
   },
   {
@@ -993,150 +992,150 @@ export default steps = [
   {
     id: "new28",
     user: true,
-    trigger: "new29",
+    trigger: (steps) => { genMessage(steps); return "new29"}
   },
   {
     id: "new29",
     message: 'How does this disrupt the space? And who will be affected and why?',
-    trigger: "new30",
+    trigger: (steps) => { genMessage(steps); return "new30"}
   },
   {
     id: "new30",
     user: true,
-    trigger: "new31",
+    trigger: (steps) => { genMessage(steps); return "new31"}
   },
   {
     id: "new31",
     message: 'Could you list the agencies, parties and individuals that should be involved for placing a work of art here?',
-    trigger: "new32",
+    trigger: (steps) => { genMessage(steps); return "new32"}
   },
   {
     id: "new32",
     options: [
-      { value: 1, label: 'Yes', trigger: "new33" },
-      { value: 2, label: 'No', trigger: "new37" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new33"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new38"} },
     ]
   },
   {
     id: "new33",
     user: true,
-    trigger: "new34",
+    trigger: (steps) => { genMessage(steps); return "new34"}
   },
   {
     id: "new34",
     message: 'Is that all?',
-    trigger: "new35",
+    trigger: (steps) => { genMessage(steps); return "new35"}
   },
   {
     id: "new35",
     options: [
-      { value: 1, label: 'Yes', trigger: "new40" },
-      { value: 2, label: 'No', trigger: "new36" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new40"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new36"} },
     ]
   },
   {
     id: "new36",
     message: 'Go on...',
-    trigger: "new37",
+    trigger: (steps) => { genMessage(steps); return "new37"}
   },
   {
     id: "new37",
     user: true,
-    trigger: "new34",
+    trigger: (steps) => { genMessage(steps); return "new34"}
   },
   {
     id: "new38",
     message: 'No, why not?',
-    trigger: "new39",
+    trigger: (steps) => { genMessage(steps); return "new39"}
   },
   {
     id: "new39",
     user: true,
-    trigger: "new40",
+    trigger: (steps) => { genMessage(steps); return "new40"}
   },
   {
     id: "new40",
     message: 'Our research shows the process for a public art project can lack transparency for interested parties. Given the place and potentiality for a work of art here, can you imagine what a transparent process would be?',
-    trigger: "new41",
+    trigger: (steps) => { genMessage(steps); return "new41"}
   },
   {
     id: "new41",
     options: [
-      { value: 1, label: 'Yes', trigger: "new42" },
-      { value: 2, label: 'No', trigger: "new47" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new42"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new47"} },
     ]
   },
   {
     id: "new42",
     message: 'Please give me insight by steps or association and order-of groups involved.',
-    trigger: "new43",
+    trigger: (steps) => { genMessage(steps); return "new43"}
   },
   {
     id: "new43",
     user: true,
-    trigger: "new44",
+    trigger: (steps) => { genMessage(steps); return "new44"}
   },
   {
     id: "new44",
     message: 'Anything else to add?',
-    trigger: "new45",
+    trigger: (steps) => { genMessage(steps); return "new45"}
   },
   {
     id: "new45",
     options: [
-      { value: 1, label: 'Yes', trigger: "new46" },
-      { value: 2, label: 'No', trigger: "new49" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new46"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new49"} },
     ]
   },
   {
     id: "new46",
     user: true,
-    trigger: "new44",
+    trigger: (steps) => { genMessage(steps); return "new44"}
   },
   {
     id: "new47",
     message: 'No, why not?',
-    trigger: "new48",
+    trigger: (steps) => { genMessage(steps); return "new48"}
   },
   {
     id: "new48",
     user: true,
-    trigger: "new49",
+    trigger: (steps) => { genMessage(steps); return "new49"}
   },
   {
     id: "new49",
     message: 'Well, that’s a lot to think about... Are there any other issues that you would like to address in the context of process?',
-    trigger: "new50",
+    trigger: (steps) => { genMessage(steps); return "new50"}
   },
   {
     id: "new50",
     options: [
-      { value: 1, label: 'Authority & Responsibility', trigger: "new51" },
-      { value: 2, label: 'Funding & Maintenance', trigger: "new51" },
-      { value: 3, label: 'Quality, Taste, & Appropriateness', trigger: "new51" },
-      { value: 4, label: 'Empowerment', trigger: "new51" },
-      { value: 5, label: 'Expertise', trigger: "new51" },
-      { value: 6, label: 'Audience', trigger: "new51" },
-      { value: 7, label: 'Job roles', trigger: "new51" },
-      { value: 8, label: 'Other', trigger: "new51" },
-      { value: 9, label: 'No', trigger: "new72" },
+      { value: "Authority & Responsibility", label: 'Authority & Responsibility', trigger: (steps) => { genMessage(steps); return "new51"} },
+      { value: "Funding & Maintenance", label: 'Funding & Maintenance', trigger: (steps) => { genMessage(steps); return "new51"} },
+      { value: "Quality, Taste, & Appropriateness", label: 'Quality, Taste, & Appropriateness', trigger: (steps) => { genMessage(steps); return "new51"} },
+      { value: "Empowerment", label: 'Empowerment', trigger: (steps) => { genMessage(steps); return "new51"} },
+      { value: "Expertise", label: 'Expertise', trigger: (steps) => { genMessage(steps); return "new51"} },
+      { value: "Audience", label: 'Audience', trigger: (steps) => { genMessage(steps); return "new51"}  },
+      { value: "Job roles", label: 'Job roles', trigger: (steps) => { genMessage(steps); return "new51"} },
+      { value: "Other", label: 'Other', trigger: (steps) => { genMessage(steps); return "new51"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new72"} },
     ]
   },
   {
     id: "new51",
     message: 'Please explain, add a pic if it helps',
-    trigger: "new52",
+    trigger: (steps) => { genMessage(steps); return "new52"}
   },
   {
     id: "new52",
     message: 'Want to take a pic?',
-    trigger: "new53",
+    trigger: (steps) => { genMessage(steps); return "new53"}
   },
   {
     id: "new53",
     options: [
-      { value: 1, label: 'Yes', trigger: "new54" },
-      { value: 2, label: 'No', trigger: "new56" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new54"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new56"} },
     ]
   },
   {
@@ -1153,59 +1152,59 @@ export default steps = [
   {
     id: "new56",
     user: true,
-    trigger: "new57",
+    trigger: (steps) => { genMessage(steps); return "new57"}
   },
   {
     id: "new57",
     message: 'Anything else to add?',
-    trigger: "new58",
+    trigger: (steps) => { genMessage(steps); return "new58"}
   },
   {
     id: "new58",
     options: [
-      { value: 1, label: 'Yes', trigger: "new59" },
-      { value: 2, label: 'No', trigger: "new60" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new59"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new60"} },
     ]
   },
   {
     id: "new59",
     user: true,
-    trigger: "new57",
+    trigger: (steps) => { genMessage(steps); return "new57"}
   },
   {
     id: "new60",
     message: 'Would you Like to address a different issue?',
-    trigger: "new61",
+    trigger: (steps) => { genMessage(steps); return "new61"}
   },
   {
     id: "new61",
     options: [
-      { value: 1, label: 'Authority & Responsibility', trigger: "new62" },
-      { value: 2, label: 'Funding & Maintenance', trigger: "new62" },
-      { value: 3, label: 'Quality, Taste, & Appropriateness', trigger: "new62" },
-      { value: 4, label: 'Empowerment', trigger: "new62" },
-      { value: 5, label: 'Expertise', trigger: "new62" },
-      { value: 6, label: 'Audience', trigger: "new62" },
-      { value: 7, label: 'Job roles', trigger: "new62" },
-      { value: 8, label: 'Other', trigger: "new62" },
-      { value: 9, label: 'No', trigger: "new72" },
+      { value: "Authority & Responsibility", label: 'Authority & Responsibility', trigger: (steps) => { genMessage(steps); return "new62"} },
+      { value: "Funding & Maintenance", label: 'Funding & Maintenance', trigger: (steps) => { genMessage(steps); return "new62"} },
+      { value: "Quality, Taste, & Appropriateness", label: 'Quality, Taste, & Appropriateness', trigger: (steps) => { genMessage(steps); return "new62"} },
+      { value: "Empowerment", label: 'Empowerment', trigger: (steps) => { genMessage(steps); return "new62"} },
+      { value: "Expertise", label: 'Expertise', trigger: (steps) => { genMessage(steps); return "new62"} },
+      { value: "Audience", label: 'Audience', trigger: (steps) => { genMessage(steps); return "new62"}  },
+      { value: "Job roles", label: 'Job roles', trigger: (steps) => { genMessage(steps); return "new62"} },
+      { value: "Other", label: 'Other', trigger: (steps) => { genMessage(steps); return "new62"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new72"} },
     ]
   },
   {
     id: "new62",
     message: 'Please explain, add a pic if it helps',
-    trigger: "new63",
+    trigger: (steps) => { genMessage(steps); return "new63"}
   },
   {
     id: "new63",
     message: 'Want to take a pic?',
-    trigger: "new64",
+    trigger: (steps) => { genMessage(steps); return "new64"}
   },
   {
     id: "new64",
     options: [
-      { value: 1, label: 'Yes', trigger: "new65" },
-      { value: 2, label: 'No', trigger: "new67" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new65"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new67"} },
     ]
   },
   {
@@ -1222,89 +1221,89 @@ export default steps = [
   {
     id: "new67",
     user: true,
-    trigger: "new68",
+    trigger: (steps) => { genMessage(steps); return "new68"}
   },
   {
     id: "new68",
     message: 'Anything else to add?',
-    trigger: "new69",
+    trigger: (steps) => { genMessage(steps); return "new69"}
   },
   {
     id: "new69",
     options: [
-      { value: 1, label: 'Yes', trigger: "new70" },
-      { value: 2, label: 'No', trigger: "new60" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new70"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new60"} },
     ]
   },
   {
     id: "new70",
     message: 'Go on...',
-    trigger: "new71",
+    trigger: (steps) => { genMessage(steps); return "new71"}
   },
   {
     id: "new71",
     user: true,
-    trigger: "new68",
+    trigger: (steps) => { genMessage(steps); return "new68"}
   },
   {
     id: "new72",
     message: 'In this place and process, what expertise does the public have to offer?',
-    trigger: "new73",
+    trigger: (steps) => { genMessage(steps); return "new73"}
   },
   {
     id: "new73",
     user: true,
-    trigger: "new74",
+    trigger: (steps) => { genMessage(steps); return "new74"}
   },
   {
     id: "new74",
     message: 'Anything else to add?',
-    trigger: "new75",
+    trigger: (steps) => { genMessage(steps); return "new75"}
   },
   {
     id: "new75",
     options: [
-      { value: 1, label: 'Yes', trigger: "new76" },
-      { value: 2, label: 'No', trigger: "new77" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new76"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new77"} },
     ]
   },
   {
     id: "new76",
     user: true,
-    trigger: "new74",
+    trigger: (steps) => { genMessage(steps); return "new74"}
   },
   {
     id: "new77",
     message: 'Our research indicates particular issues are left out of the conversation when logistics and process take precedent about the use of a public space. Can you reflect on...?',
-    trigger: "new78",
+    trigger: (steps) => { genMessage(steps); return "new78"}
   },
   {
     id: "new78",
     options: [
-      { value: 1, label: 'Well Being', trigger: "new79" },
-      { value: 2, label: 'Fun', trigger: "new79" },
-      { value: 3, label: 'Enjoyment & Pleasure', trigger: "new79" },
-      { value: 4, label: 'Education', trigger: "new79" },
-      { value: 5, label: 'Community', trigger: "new79" },
-      { value: 6, label: 'Other', trigger: "new79" },
-      { value: 7, label: 'No', trigger: "new83" },
+      { value: "Well Being", label: 'Well Being', trigger: (steps) => { genMessage(steps); return "new79"} },
+      { value: "Fun", label: 'Fun', trigger: (steps) => { genMessage(steps); return "new78"} },
+      { value: "Enjoyment & Pleasure", label: 'Enjoyment & Pleasure', trigger: (steps) => { genMessage(steps); return "new79"} },
+      { value: "Education", label: 'Education', trigger: (steps) => { genMessage(steps); return "new79"} },
+      { value: "Community", label: 'Community', trigger: (steps) => { genMessage(steps); return "new79"} },
+      { value: "Other", label: 'Other', trigger: (steps) => { genMessage(steps); return "new79"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new100"} },
     ]
   },
   {
     id: "new79",
     message: 'Please explain, add a pic if it helps',
-    trigger: "new80",
+    trigger: (steps) => { genMessage(steps); return "new80"}
   },
   {
     id: "new80",
     message: 'Want to take a pic?',
-    trigger: "new81",
+    trigger: (steps) => { genMessage(steps); return "new81"}
   },
   {
     id: "new81",
     options: [
-      { value: 1, label: 'Yes', trigger: "new82" },
-      { value: 2, label: 'No', trigger: "new84" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new82"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new84"} },
     ]
   },
   {
@@ -1321,57 +1320,57 @@ export default steps = [
   {
     id: "new84",
     user: true,
-    trigger: "new85",
+    trigger: (steps) => { genMessage(steps); return "new85"}
   },
   {
     id: "new85",
     message: 'Anything else?',
-    trigger: "new86",
+    trigger: (steps) => { genMessage(steps); return "new86"}
   },
   {
     id: "new86",
     options: [
-      { value: 1, label: 'Yes', trigger: "new87" },
-      { value: 2, label: 'No', trigger: "new88" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new87"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new88"} },
     ]
   },
   {
     id: "new87",
     user: true,
-    trigger: "new88",
+    trigger: (steps) => { genMessage(steps); return "new88"}
   },
   {
     id: "new88",
     message: 'Would you Like to address a different issue?',
-    trigger: "new89",
+    trigger: (steps) => { genMessage(steps); return "new89"}
   },
   {
     id: "new89",
     options: [
-      { value: 1, label: 'Well Being', trigger: "new90" },
-      { value: 2, label: 'Fun', trigger: "new90" },
-      { value: 3, label: 'Enjoyment & Pleasure', trigger: "new90" },
-      { value: 4, label: 'Education', trigger: "new90" },
-      { value: 5, label: 'Community', trigger: "new90" },
-      { value: 6, label: 'Other', trigger: "new90" },
-      { value: 7, label: 'No', trigger: "new100" },
+      { value: "Well Being", label: 'Well Being', trigger: (steps) => { genMessage(steps); return "new90"} },
+      { value: "Fun", label: 'Fun', trigger: (steps) => { genMessage(steps); return "new90"} },
+      { value: "Enjoyment & Pleasure", label: 'Enjoyment & Pleasure', trigger: (steps) => { genMessage(steps); return "new90"} },
+      { value: "Education", label: 'Education', trigger: (steps) => { genMessage(steps); return "new90"} },
+      { value: "Community", label: 'Community', trigger: (steps) => { genMessage(steps); return "new90"} },
+      { value: "Other", label: 'Other', trigger: (steps) => { genMessage(steps); return "new90"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new100"} },
     ]
   },
   {
     id: "new90",
     message: 'Please explain, add a pic if it helps',
-    trigger: "new91",
+    trigger: (steps) => { genMessage(steps); return "new91"}
   },
   {
     id: "new91",
     message: 'Want to take a pic?',
-    trigger: "new92",
+    trigger: (steps) => { genMessage(steps); return "new92"}
   },
   {
     id: "new92",
     options: [
-      { value: 1, label: 'Yes', trigger: "new93" },
-      { value: 2, label: 'No', trigger: "new95" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new93"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new95"} },
     ]
   },
   {
@@ -1388,57 +1387,57 @@ export default steps = [
   {
     id: "new95",
     user: true,
-    trigger: "new96",
+    trigger: (steps) => { genMessage(steps); return "new96"}
   },
   {
     id: "new96",
     message: 'Anything else to add?',
-    trigger: "new97",
+    trigger: (steps) => { genMessage(steps); return "new97"}
   },
   {
     id: "new97",
     options: [
-      { value: 1, label: 'Yes', trigger: "new98" },
-      { value: 2, label: 'No', trigger: "new88" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new98"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new88"} },
     ]
   },
   {
     id: "new98",
     message: 'Go on...',
-    trigger: "new99",
+    trigger: (steps) => { genMessage(steps); return "new99"}
   },
   {
     id: "new99",
     user: true,
-    trigger: "new88",
+    trigger: (steps) => { genMessage(steps); return "new88"}
   },
   {
     id: "new100",
     message: 'Would you like to say anything more about any issues related to our current conversation?',
-    trigger: "new101",
+    trigger: (steps) => { genMessage(steps); return "new101"}
   },
   {
     id: "new101",
     options: [
-      { value: 1, label: 'Yes', trigger: "new102" },
-      { value: 2, label: 'No', trigger:  "Outro" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new102"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "Outro"} },
     ]
   },
   {
     id: "new102",
     message: 'Tell me about it and take a pic if it helps...',
-    trigger: "new103",
+    trigger: (steps) => { genMessage(steps); return "new103"}
   },
   {
     id: "new103",
     message: 'Want to take a pic?',
-    trigger: "new104",
+    trigger: (steps) => { genMessage(steps); return "new104"}
   },
   {
     id: "new104",
     options: [
-      { value: 1, label: 'Yes', trigger: "new105" },
-      { value: 2, label: 'No', trigger: "new107" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new105"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new107"} },
     ]
   },
   {
@@ -1455,24 +1454,24 @@ export default steps = [
   {
     id: "new107",
     user: true,
-    trigger: "new108",
+    trigger: (steps) => { genMessage(steps); return "new108"}
   },
   {
     id: "new108",
     message: 'Anything else?',
-    trigger: "new109",
+    trigger: (steps) => { genMessage(steps); return "new109"}
   },
   {
     id: "new109",
     options: [
-      { value: 1, label: 'Yes', trigger: "new110" },
-      { value: 2, label: 'No', trigger:  "Outro"},
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new110"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "Outro"} },
     ]
   },
   {
     id: "new110",
     user: true,
-    trigger: "new108",
+    trigger: (steps) => { genMessage(steps, true); return "new108"}
   },
 
   ////////////////////
@@ -1482,55 +1481,60 @@ export default steps = [
   {
     id: "Outro",
     message: 'That’s pretty much everything!',
-    trigger: "out1"
+    trigger: (steps) => { genMessage(steps); return "out1"}
   },
   {
     id: "out1",
     message: 'Thank you for your patience and participation But before you return me, do you have anything you would like to underscore or add to the conversation?',
-    trigger: "out2"
+    trigger: (steps) => { genMessage(steps); return "out2"}
   },
   {
     id: "out2",
     options: [
-      { value: 1, label: 'Yes', trigger: "out3" },
-      { value: 2, label: 'No', trigger: "out8" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "out3"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "out8"} },
     ]
   },
   {
     id: "out3",
     message: 'I am listening...',
-    trigger: "out4"
+    trigger: (steps) => { genMessage(steps); return "out4"}
   },
   {
     id: "out4",
     user: true,
-    trigger: "out5"
+    trigger: (steps) => { genMessage(steps); return "out5"}
   },
   {
     id: "out5",
     message: 'Anything else?',
-    trigger: "out6",
+    trigger: (steps) => { genMessage(steps); return "out6"}
   },
   {
     id: "out6",
     options: [
-      { value: 1, label: 'Yes', trigger: "out7" },
-      { value: 2, label: 'No', trigger: "out8" },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "out7"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "out8"} },
     ]
   },
   {
     id: "out7",
     user: true,
-    trigger: "out5"
+    trigger: (steps) => { genMessage(steps); return "out5"}
   },
   {
     id: "out8",
     message: 'That’s all good. You’ve been a great help towards this research....',
-    trigger: "out9"
+    trigger: (steps) => { genMessage(steps); return "out9"}
   },
   {
     id: "out9",
     message: 'Please return me to the researchers.',
+    trigger: (steps) => { genMessage(steps, true); debugFun(); return "out10"}
+  },
+  {
+    id: "out10",
+    message: 'FIN.',
     end: true
   },
 ];

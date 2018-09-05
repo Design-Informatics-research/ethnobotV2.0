@@ -2,14 +2,16 @@ import React, { Component } from 'react';
 import { View, Image, Alert, AsyncStorage} from 'react-native';
 import RNFS from 'react-native-fs';
 
-import Cam from './Cam';
-import Test from './src/Test';
-import * as actions from './src/actions';
+import Cam from './components/Cam';
+import ImageContainer from './components/ImageContainer';
+import * as actions from './actions';
 
 export const genMessage = ({steps}, geoLoc) => {
   geoLoc = geoLoc || false;
+
   console.log(steps[Object.keys(steps)[Object.keys(steps).length - 1]])
   let msg = null;
+
   try {
     msg = JSON.stringify(steps[Object.keys(steps)[Object.keys(steps).length - 1]].message)
   } catch (err) {
@@ -21,29 +23,36 @@ export const genMessage = ({steps}, geoLoc) => {
 }
 
 export const genGeolocation = () => {
-  let pos = navigator.geolocation.getCurrentPosition(
+  return navigator.geolocation.getCurrentPosition(
     (position) => {
-      return {lat: position.coords.latitude, lng: position.coords.longitude};
+      return JSON.stringify({lat: position.coords.latitude, lng: position.coords.longitude});
     },
     (error) => console.log({ error: error.message }),
     { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
   );
-  return pos;
 }
 
 export const saveEntry = async (entry, geoLoc) => {
   geoLoc = geoLoc || false;
 
   if (geoLoc) {
-    let multiEntries = [
-      [JSON.stringify(new Date().toLocaleString()+" GEO"), JSON.stringify(genGeolocation())],
-      [JSON.stringify(new Date().toLocaleString()), JSON.stringify(entry)]
-    ];
-    try {
-      AsyncStorage.multiSet(multiEntries);
-    } catch (error) {
-      console.log(error)
-    }
+   navigator.geolocation.getCurrentPosition(
+     (position) => {
+
+       let multiEntries = [
+         [JSON.stringify(new Date().toLocaleString()+" GEO"), JSON.stringify({lat: position.coords.latitude, lng: position.coords.longitude})],
+         [JSON.stringify(new Date().toLocaleString()), JSON.stringify(entry)]
+       ];
+       try {
+         AsyncStorage.multiSet(multiEntries);
+       } catch (error) {
+         console.log(error)
+       }
+
+     },
+     (error) => console.log({ error: error.message }),
+     { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+   );
   } else {
     try {
       await AsyncStorage.setItem(new Date().toLocaleString(), entry);
@@ -213,7 +222,7 @@ export default steps = [
   },
   {
     id: "trans8",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "trans9"
   },
   {
@@ -246,7 +255,7 @@ export default steps = [
   },
   {
     id: "trans14",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "trans15"
   },
   {
@@ -361,7 +370,7 @@ export default steps = [
   },
   {
     id: "trans35",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "trans36"
   },
   {
@@ -463,7 +472,7 @@ export default steps = [
   },
   {
     id: "trans53",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "trans54"
   },
   {
@@ -545,7 +554,7 @@ export default steps = [
   },
   {
     id: "con8",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "con9"
   },
   {
@@ -578,7 +587,7 @@ export default steps = [
   },
   {
     id: "con14",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "con15"
   },
   {
@@ -656,7 +665,7 @@ export default steps = [
   },
   {
     id: "con28",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "con29"
   },
   {
@@ -728,7 +737,7 @@ export default steps = [
   },
   {
     id: "con41",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "con42"
   },
   {
@@ -800,7 +809,7 @@ export default steps = [
   },
   {
     id: "con54",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "con55"
   },
   {
@@ -882,7 +891,7 @@ export default steps = [
   },
   {
     id: "new8",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new9"
   },
   {
@@ -927,7 +936,7 @@ export default steps = [
   },
   {
     id: "new16",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new17"
   },
   {
@@ -948,7 +957,7 @@ export default steps = [
   },
   {
     id: "new20",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new21"
   },
   {
@@ -986,7 +995,7 @@ export default steps = [
   },
   {
     id: "new27",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new28"
   },
   {
@@ -1146,7 +1155,7 @@ export default steps = [
   },
   {
     id: "new55",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new56"
   },
   {
@@ -1215,7 +1224,7 @@ export default steps = [
   },
   {
     id: "new66",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new67"
   },
   {
@@ -1314,7 +1323,7 @@ export default steps = [
   },
   {
     id: "new83",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new84"
   },
   {
@@ -1381,7 +1390,7 @@ export default steps = [
   },
   {
     id: "new94",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new95"
   },
   {
@@ -1448,7 +1457,7 @@ export default steps = [
   },
   {
     id: "new106",
-    component: <Test />,
+    component: <ImageContainer />,
     trigger: "new107"
   },
   {

@@ -38,8 +38,6 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>&quot; &quot;</string>
 	<key>NSCameraUsageDescription</key>
 	<string>&quot; &quot;</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -47,6 +45,8 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>&quot; &quot;</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>&quot; &quot;</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>&quot; &quot;</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>

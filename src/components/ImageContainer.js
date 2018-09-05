@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Image, StatusBar, StyleSheet, TouchableOpacity, View, Text, FlatList, Alert } from 'react-native';
 
-import ImageStyle from './styles/ImageStyle';
+import ImageStyle from '../styles/ImageStyle';
 
-class Test extends Component {
+class ImageContainer extends Component {
   constructor(props) {
     super(props);
   }
@@ -17,7 +17,6 @@ class Test extends Component {
     )
   }
 
-
   render() {
     return (
       this.renderImage()
@@ -25,4 +24,4 @@ class Test extends Component {
   }
 }
 
-export default Test;
+export default ImageContainer;

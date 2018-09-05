@@ -6,19 +6,12 @@ import { ThemeProvider } from 'styled-components';
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 import rootReducer from './src/reducers'
-
-import RNFetchBlob from 'react-native-fetch-blob'
-// import RNFS from 'react-native-fs';
-
 const store = createStore(rootReducer)
 
-import Test from './src/Test';
-import Cam from './Cam';
-
-
-import steps from './steps';
-
-import Geolocation from './src/Geolocation';
+import ImageContainer from './src/components/ImageContainer'; //image component
+import Cam from './src/components/Cam'; //cam component
+import Geolocation from './src/components/Geolocation'; //geolocation component
+import steps from './src/steps'; //dialog steps
 
 class App extends Component {
   constructor(props) {
@@ -34,15 +27,11 @@ class App extends Component {
 
   handleEnd() {}
 
-
   render() {
-    {/*cache={true}
-    cacheName={this.setCacheName()}
-    */}
     return (
       <Provider store={store}>
         <ChatBot
-          ref={(bot) => {this.bot = bot}}
+          ref={(bot)=>{this.bot = bot}}
           steps={this.state.steps}
           hideUserAvatar={true}
           handleEnd={this.handleEnd}

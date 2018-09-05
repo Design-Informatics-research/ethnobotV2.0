@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Image, Alert} from 'react-native';
 import Review from './Review';
 import Cam from './Cam';
-import Test from './src/Test';
+import ImageContainer from './src/ImageContainer';
 
 
 export default steps = [

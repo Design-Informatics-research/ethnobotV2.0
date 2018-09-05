@@ -3,7 +3,7 @@ import { AppRegistry, Dimensions, StyleSheet, Text, TouchableOpacity, View, Came
 import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
 
-import CameraStyle from './src/styles/CameraStyle';
+import CameraStyle from '../styles/CameraStyle';
 
 export default class Cam extends React.Component {
   constructor(props) {
@@ -71,13 +71,13 @@ export default class Cam extends React.Component {
 
       CameraRoll.saveToCameraRoll(data.uri);
 
-      let date = new Date();
-      let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-
-      // this.moveImageFromCacheToProjectFolder()
-      //   .then(
-      //     this.props.triggerNextStep({ value: `${RNFS.DocumentDirectoryPath}/${dateStr}.jpg`})
-      //   );
+      // let date = new Date();
+      // let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+      //
+      // // this.moveImageFromCacheToProjectFolder()
+      // //   .then(
+      // //     this.props.triggerNextStep({ value: `${RNFS.DocumentDirectoryPath}/${dateStr}.jpg`})
+      // //   );
 
       this.props.triggerNextStep({ value: data.uri});
     }

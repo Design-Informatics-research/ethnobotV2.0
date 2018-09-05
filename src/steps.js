@@ -75,6 +75,23 @@ export const debugFun = async () => {
 }
 
 export const exportDialog = (dialog) => {
+
+  /*example out put for ethno-reader*/
+  // [
+    // {
+    //   "id": 0,
+    //   "time": "25/04/2018 13:49:22",
+    //   "message": "Hello, I am Ethnobot",
+    //   "orgin": "bot"
+    // },
+    // {
+    //   "id": 1,
+    //   "time": "25/04/2018 13:49:22",
+    //   "message": "Hello, I am Ethnobot, how are you?",
+    //   "orgin": "human"
+    // }
+  // ]
+
   let date = new Date();
   let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
 

@@ -95,7 +95,7 @@ export const exportDialog = (dialog) => {
   let date = new Date();
   let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
 
-  let path = RNFS.DocumentDirectoryPath +'/dialog.json';
+  let path = RNFS.DocumentDirectoryPath +'/dialog-'+(date-0)+'.json';
 
   // write the file
   RNFS.writeFile(path, String(dialog), 'utf8')

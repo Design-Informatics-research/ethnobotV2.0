@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, Dimensions, StyleSheet, Text, TouchableOpacity, View, CameraRoll } from 'react-native';
+import { AppRegistry, Dimensions, StyleSheet, Text, TouchableOpacity, View, CameraRoll, AsyncStorage } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
 
@@ -79,7 +79,19 @@ export default class Cam extends React.Component {
       // //     this.props.triggerNextStep({ value: `${RNFS.DocumentDirectoryPath}/${dateStr}.jpg`})
       // //   );
 
-      this.props.triggerNextStep({ value: data.uri});
+      try {
+        AsyncStorage.setItem("ebot-"+(new Date()-0), JSON.stringify({
+          time: new Date().toLocaleString(),
+          type: "pic",
+          orgin: "human",
+          message: data.uri, //Find images in <APP_DIR>/Documents/Library/Caches/Camera
+          unix: new Date()-0
+        }));
+      } catch (error) {
+        console.log(error)
+      }
+
+      this.props.triggerNextStep({ value: data.uri });
     }
   };
 

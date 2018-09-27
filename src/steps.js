@@ -6,20 +6,22 @@ import Cam from './components/Cam';
 import ImageContainer from './components/ImageContainer';
 import * as actions from './actions';
 
-export const genMessage = ({steps}, geoLoc) => {
+export const genMessage = ({steps}, geoLoc, source) => {
   geoLoc = geoLoc || false;
+  source = source || "bot";
 
-  console.log(steps[Object.keys(steps)[Object.keys(steps).length - 1]])
+  var keys = Object.keys(steps);
+  var lastIdx = keys.length - 1;
+  var lastStep = steps[keys[lastIdx]];
   let msg = null;
 
-  try {
-    msg = JSON.stringify(steps[Object.keys(steps)[Object.keys(steps).length - 1]].message)
-  } catch (err) {
-    console.log("error in assigning value ", err)
+  console.log("\n\nSaving step", lastStep);
+  if (lastStep.message){
+    msg = lastStep.message;
   }
 
-  if (msg == null) msg = steps[Object.keys(steps)[Object.keys(steps).length - 1]].value;
-  saveEntry(msg, geoLoc);
+  if (msg == null) msg = lastStep.value;
+  saveEntry(msg, source, geoLoc);
 }
 
 export const genGeolocation = () => {
@@ -32,22 +34,35 @@ export const genGeolocation = () => {
   );
 }
 
-export const saveEntry = async (entry, geoLoc) => {
+export const saveEntry = async (entry, source, geoLoc) => {
   geoLoc = geoLoc || false;
 
   if (geoLoc) {
    navigator.geolocation.getCurrentPosition(
      (position) => {
 
-       let multiEntries = [
-         [JSON.stringify(new Date().toLocaleString()+" GEO"), JSON.stringify({lat: position.coords.latitude, lng: position.coords.longitude})],
-         [JSON.stringify(new Date().toLocaleString()), JSON.stringify(entry)]
-       ];
-       try {
-         AsyncStorage.multiSet(multiEntries);
-       } catch (error) {
-         console.log(error)
-       }
+      let multiEntries = [
+        ["ebot-"+(new Date()-0), JSON.stringify({
+          time: new Date().toLocaleString(),
+          type: "geo",
+          orgin: "bot",
+          message: {lat: position.coords.latitude, lng: position.coords.longitude},
+          unix: new Date()-0
+        })],
+        ["ebot-"+(new Date()-0), JSON.stringify({
+          time: new Date().toLocaleString(), 
+          type: "entry",
+          orgin: source,
+          message: entry,
+          unix: new Date()-0
+        })]
+      ];
+
+      try {
+        AsyncStorage.multiSet(multiEntries);
+      } catch (error) {
+        console.log(error)
+      }
 
      },
      (error) => console.log({ error: error.message }),
@@ -55,18 +70,29 @@ export const saveEntry = async (entry, geoLoc) => {
    );
   } else {
     try {
-      await AsyncStorage.setItem(new Date().toLocaleString(), entry);
+      await AsyncStorage.setItem("ebot-"+(new Date()-0), JSON.stringify({
+          time: new Date().toLocaleString(), 
+          type: "entry",
+          orgin: source,
+          message: entry,
+          unix: new Date()-0
+        }));
     } catch (error) {
       console.log(error)
     }
   }
 }
 
+export const sortKeys = (keys) => {
+  return keys.sort(function(a,b){
+    return parseInt(a.replace('ebot-','')) - parseInt(b.replace('ebot-',''));
+  })
+}
+
 export const debugFun = async () => {
   try {
-    AsyncStorage.getAllKeys().then(keys => AsyncStorage.multiGet(keys)
+    AsyncStorage.getAllKeys().then(keys => AsyncStorage.multiGet(sortKeys(keys))
     .then((result) => {
-      // console.log("Me ",result[0])
       exportDialog(result)
     }));
   } catch (error) {
@@ -92,6 +118,8 @@ export const exportDialog = (dialog) => {
     // }
   // ]
 
+  console.log(dialog);
+
   let date = new Date();
   let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
 
@@ -101,6 +129,7 @@ export const exportDialog = (dialog) => {
   RNFS.writeFile(path, String(dialog), 'utf8')
     .then((success) => {
       console.log('FILE WRITTEN!');
+      wipeCachedData();
     })
     .catch((err) => {
       console.log(err.message);
@@ -133,7 +162,7 @@ export default steps = [
   {
     id: "intro2",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "intro3" }
+    trigger: (steps) => { genMessage(steps, false, "human"); return "intro3" }
   },
   {
     id: "intro3",
@@ -148,7 +177,7 @@ export default steps = [
   {
     id: "intro4",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "intro5" }
+    trigger: (steps) => { genMessage(steps, false, "human"); return "intro5" }
   },
   {
     id: "intro5",
@@ -168,8 +197,8 @@ export default steps = [
   {
     id: "intro8",
     options: [
-      { value: 'Yes', label: 'Yes', trigger: (steps) => { genMessage(steps); return "intro11"} },
-      { value: 'No', label: 'No', trigger: (steps) => { genMessage(steps); return "intro9"} },
+      { value: 'Yes', label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "intro11"} },
+      { value: 'No', label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "intro9"} },
     ]
   },
   {
@@ -180,7 +209,7 @@ export default steps = [
   {
     id: "intro10",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "intro7"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "intro7"}
   },
   {
     id: "intro11",
@@ -210,7 +239,7 @@ export default steps = [
   {
     id: "trans3",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans12"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans12"} },
       { value: "No", label: 'No, I got distracted', trigger: (steps) => { genMessage(steps, true); return "trans4"} },
     ]
   },
@@ -227,25 +256,25 @@ export default steps = [
   {
     id: "trans6",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans7"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans9"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans7"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans9"} },
     ]
   },
   {
     id: "trans7",
     waitAction: true,
     component: <Cam />,
-    trigger: 'trans8'
+    trigger: function(){ genMessage(steps); return 'trans8' }
   },
   {
     id: "trans8",
     component: <ImageContainer />,
-    trigger: "trans9"
+    trigger: function(){ genMessage(steps); return 'trans9' }
   },
   {
     id: "trans9",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans10"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans10"}
   },
   {
     id: "trans10",
@@ -255,8 +284,8 @@ export default steps = [
   {
     id: "trans11",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans9"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans1"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans9"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans1"} },
     ]
   },
   {
@@ -277,20 +306,20 @@ export default steps = [
   },
   {
     id: "trans15",
-    message: 'and it’s name.',
+    message: '...and the name of the work?',
     trigger: (steps) => { genMessage(steps); return "trans16"}
   },
   {
     id: "trans16",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans17"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans17"}
   },
   {
     id: "trans17",
-    message: 'Alright, I am gonna ask some deep questions now.',
+    message: 'Alright, I\'m gonna ask some deep questions now.',
     trigger: (steps) => { genMessage(steps); return "trans18"}
+    //trigger: (steps) => { genMessage(steps); return "out9"}
   },
-
   {
     id: "trans18",
     message: 'Who or what is this transformative for and why?',
@@ -299,7 +328,7 @@ export default steps = [
   {
     id: "trans19",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans20"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans20"}
   },
   {
     id: "trans20",
@@ -309,8 +338,8 @@ export default steps = [
   {
     id: "trans21",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans22"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans24"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans22"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans24"} },
     ]
   },
   {
@@ -321,7 +350,7 @@ export default steps = [
   {
     id: "trans23",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans20"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans20"}
   },
   {
     id: "trans24",
@@ -331,8 +360,8 @@ export default steps = [
   {
     id: "trans25",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans31"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans26"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans31"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans26"} },
     ]
   },
   {
@@ -343,7 +372,7 @@ export default steps = [
   {
     id: "trans27",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans28"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans28"}
   },
   {
     id: "trans28",
@@ -353,14 +382,14 @@ export default steps = [
   {
     id: "trans29",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans30"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans40"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans30"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans40"} },
     ]
   },
   {
     id: "trans30",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans28"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans28"}
   },
   {
     id: "trans31",
@@ -375,8 +404,8 @@ export default steps = [
   {
     id: "trans33",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans34"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans36"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans34"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans36"} },
     ]
   },
   {
@@ -393,7 +422,7 @@ export default steps = [
   {
     id: "trans36",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans37"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans37"}
   },
   {
     id: "trans37",
@@ -404,14 +433,14 @@ export default steps = [
   {
     id: "trans38",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans39"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans40"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans39"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans40"} },
     ]
   },
   {
     id: "trans39",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans37"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans37"}
   },
   {
     id: "trans40",
@@ -421,8 +450,8 @@ export default steps = [
   {
     id: "trans41",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans42"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans47"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans42"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans47"} },
     ]
   },
   {
@@ -433,7 +462,7 @@ export default steps = [
   {
     id: "trans43",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans44"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans44"}
   },
   {
     id: "trans44",
@@ -443,14 +472,14 @@ export default steps = [
   {
     id: "trans45",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans46"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans47"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans46"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans47"} },
     ]
   },
   {
     id: "trans46",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans44"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans44"}
   },
   {
     id: "trans47",
@@ -460,8 +489,8 @@ export default steps = [
   {
     id: "trans48",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans49"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans58"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans49"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans58"} },
     ]
   },
   {
@@ -477,8 +506,8 @@ export default steps = [
   {
     id: "trans51",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans52"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans54"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans52"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans54"} },
     ]
   },
   {
@@ -495,7 +524,7 @@ export default steps = [
   {
     id: "trans54",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans55"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans55"}
   },
   {
     id: "trans55",
@@ -505,14 +534,14 @@ export default steps = [
   {
     id: "trans56",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "trans57"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "trans58"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "trans57"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "trans58"} },
     ]
   },
   {
     id: "trans57",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "trans55"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "trans55"}
   },
   {
     id: "trans58",
@@ -542,7 +571,7 @@ export default steps = [
   {
     id: "con3",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con12"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con12"} },
       { value: "No", label: 'No, I got distracted', trigger: (steps) => { genMessage(steps, true); return "con4"} },
     ]
   },
@@ -559,8 +588,8 @@ export default steps = [
   {
     id: "con6",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con7"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con9"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con7"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con9"} },
     ]
   },
   {
@@ -577,7 +606,7 @@ export default steps = [
   {
     id: "con9",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con10"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con10"}
   },
   {
     id: "con10",
@@ -587,8 +616,8 @@ export default steps = [
   {
     id: "con11",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con9"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con1"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con9"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con1"} },
     ]
   },
   {
@@ -615,7 +644,7 @@ export default steps = [
   {
     id: "con16",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con17"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con17"}
   },
   {
     id: "con17",
@@ -626,7 +655,7 @@ export default steps = [
   {
     id: "con18",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con19"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con19"}
   },
   {
     id: "con19",
@@ -636,14 +665,14 @@ export default steps = [
   {
     id: "con20",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con21"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con22"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con21"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con22"} },
     ]
   },
   {
     id: "con21",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con19"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con19"}
   },
   {
     id: "con22",
@@ -653,8 +682,8 @@ export default steps = [
   {
     id: "con23",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con24"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con33"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con24"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con33"} },
     ]
   },
   {
@@ -670,8 +699,8 @@ export default steps = [
   {
     id: "con26",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con27"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con29"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con27"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con29"} },
     ]
   },
   {
@@ -688,7 +717,7 @@ export default steps = [
   {
     id: "con29",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con30"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con30"}
   },
   {
     id: "con30",
@@ -698,14 +727,14 @@ export default steps = [
   {
     id: "con31",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con32"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con35"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con32"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con35"} },
     ]
   },
   {
     id: "con32",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con30"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con30"}
   },
   {
     id: "con33",
@@ -715,7 +744,7 @@ export default steps = [
   {
     id: "con34",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con35"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con35"}
   },
   {
     id: "con35",
@@ -725,8 +754,8 @@ export default steps = [
   {
     id: "con36",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con37"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con46"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con37"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con46"} },
     ]
   },
   {
@@ -742,8 +771,8 @@ export default steps = [
   {
     id: "con39",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con40"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con42"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con40"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con42"} },
     ]
   },
   {
@@ -760,7 +789,7 @@ export default steps = [
   {
     id: "con42",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con43"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con43"}
   },
   {
     id: "con43",
@@ -770,14 +799,14 @@ export default steps = [
   {
     id: "con44",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con45"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con48"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con45"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con48"} },
     ]
   },
   {
     id: "con45",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con43"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con43"}
   },
   {
     id: "con46",
@@ -787,7 +816,7 @@ export default steps = [
   {
     id: "con47",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con48"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con48"}
   },
   {
     id: "con48",
@@ -797,8 +826,8 @@ export default steps = [
   {
     id: "con49",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con50"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con59"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con50"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con59"} },
     ]
   },
   {
@@ -814,8 +843,8 @@ export default steps = [
   {
     id: "con52",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con53"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con55"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con53"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con55"} },
     ]
   },
   {
@@ -832,7 +861,7 @@ export default steps = [
   {
     id: "con55",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con56"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con56"}
   },
   {
     id: "con56",
@@ -842,14 +871,14 @@ export default steps = [
   {
     id: "con57",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "con58"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "con59"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "con58"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "con59"} },
     ]
   },
   {
     id: "con58",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "con56"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "con56"}
   },
   {
     id: "con59",
@@ -879,7 +908,7 @@ export default steps = [
   {
     id: "new3",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new12"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new12"} },
       { value: "No, I got distracted", label: 'No, I got distracted', trigger: (steps) => { genMessage(steps, true); return "new4"} },
     ]
   },
@@ -896,8 +925,8 @@ export default steps = [
   {
     id: "new6",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new7"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new9"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new7"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new9"} },
     ]
   },
   {
@@ -914,7 +943,7 @@ export default steps = [
   {
     id: "new9",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new10"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new10"}
   },
   {
     id: "new10",
@@ -924,8 +953,8 @@ export default steps = [
   {
     id: "new11",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new9"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new1"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new9"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new1"} },
     ]
   },
   {
@@ -959,7 +988,7 @@ export default steps = [
   {
     id: "new17",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new29"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new29"}
   },
   {
     id: "new18",
@@ -980,7 +1009,7 @@ export default steps = [
   {
     id: "new21",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new22"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new22"}
   },
   {
     id: "new22",
@@ -1000,8 +1029,8 @@ export default steps = [
   {
     id: "new25",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new26"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new28"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new26"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new28"} },
     ]
   },
   {
@@ -1018,7 +1047,7 @@ export default steps = [
   {
     id: "new28",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new29"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new29"}
   },
   {
     id: "new29",
@@ -1028,7 +1057,7 @@ export default steps = [
   {
     id: "new30",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new31"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new31"}
   },
   {
     id: "new31",
@@ -1038,14 +1067,14 @@ export default steps = [
   {
     id: "new32",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new33"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new38"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new33"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new38"} },
     ]
   },
   {
     id: "new33",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new34"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new34"}
   },
   {
     id: "new34",
@@ -1055,8 +1084,8 @@ export default steps = [
   {
     id: "new35",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new40"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new36"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new40"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new36"} },
     ]
   },
   {
@@ -1067,7 +1096,7 @@ export default steps = [
   {
     id: "new37",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new34"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new34"}
   },
   {
     id: "new38",
@@ -1077,7 +1106,7 @@ export default steps = [
   {
     id: "new39",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new40"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new40"}
   },
   {
     id: "new40",
@@ -1087,8 +1116,8 @@ export default steps = [
   {
     id: "new41",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new42"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new47"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new42"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new47"} },
     ]
   },
   {
@@ -1099,7 +1128,7 @@ export default steps = [
   {
     id: "new43",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new44"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new44"}
   },
   {
     id: "new44",
@@ -1109,14 +1138,14 @@ export default steps = [
   {
     id: "new45",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new46"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new49"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new46"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new49"} },
     ]
   },
   {
     id: "new46",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new44"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new44"}
   },
   {
     id: "new47",
@@ -1126,7 +1155,7 @@ export default steps = [
   {
     id: "new48",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new49"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new49"}
   },
   {
     id: "new49",
@@ -1144,7 +1173,7 @@ export default steps = [
       { value: "Audience", label: 'Audience', trigger: (steps) => { genMessage(steps); return "new51"}  },
       { value: "Job roles", label: 'Job roles', trigger: (steps) => { genMessage(steps); return "new51"} },
       { value: "Other", label: 'Other', trigger: (steps) => { genMessage(steps); return "new51"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new72"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new72"} },
     ]
   },
   {
@@ -1160,8 +1189,8 @@ export default steps = [
   {
     id: "new53",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new54"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new56"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new54"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new56"} },
     ]
   },
   {
@@ -1178,7 +1207,7 @@ export default steps = [
   {
     id: "new56",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new57"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new57"}
   },
   {
     id: "new57",
@@ -1188,14 +1217,14 @@ export default steps = [
   {
     id: "new58",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new59"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new60"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new59"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new60"} },
     ]
   },
   {
     id: "new59",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new57"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new57"}
   },
   {
     id: "new60",
@@ -1213,7 +1242,7 @@ export default steps = [
       { value: "Audience", label: 'Audience', trigger: (steps) => { genMessage(steps); return "new62"}  },
       { value: "Job roles", label: 'Job roles', trigger: (steps) => { genMessage(steps); return "new62"} },
       { value: "Other", label: 'Other', trigger: (steps) => { genMessage(steps); return "new62"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new72"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new72"} },
     ]
   },
   {
@@ -1229,8 +1258,8 @@ export default steps = [
   {
     id: "new64",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new65"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new67"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new65"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new67"} },
     ]
   },
   {
@@ -1247,7 +1276,7 @@ export default steps = [
   {
     id: "new67",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new68"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new68"}
   },
   {
     id: "new68",
@@ -1257,8 +1286,8 @@ export default steps = [
   {
     id: "new69",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new70"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new60"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new70"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new60"} },
     ]
   },
   {
@@ -1269,7 +1298,7 @@ export default steps = [
   {
     id: "new71",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new68"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new68"}
   },
   {
     id: "new72",
@@ -1279,7 +1308,7 @@ export default steps = [
   {
     id: "new73",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new74"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new74"}
   },
   {
     id: "new74",
@@ -1289,14 +1318,14 @@ export default steps = [
   {
     id: "new75",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new76"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new77"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new76"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new77"} },
     ]
   },
   {
     id: "new76",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new74"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new74"}
   },
   {
     id: "new77",
@@ -1312,7 +1341,7 @@ export default steps = [
       { value: "Education", label: 'Education', trigger: (steps) => { genMessage(steps); return "new79"} },
       { value: "Community", label: 'Community', trigger: (steps) => { genMessage(steps); return "new79"} },
       { value: "Other", label: 'Other', trigger: (steps) => { genMessage(steps); return "new79"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new100"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new100"} },
     ]
   },
   {
@@ -1328,8 +1357,8 @@ export default steps = [
   {
     id: "new81",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new82"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new84"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new82"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new84"} },
     ]
   },
   {
@@ -1346,7 +1375,7 @@ export default steps = [
   {
     id: "new84",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new85"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new85"}
   },
   {
     id: "new85",
@@ -1356,14 +1385,14 @@ export default steps = [
   {
     id: "new86",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new87"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new88"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new87"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new88"} },
     ]
   },
   {
     id: "new87",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new88"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new88"}
   },
   {
     id: "new88",
@@ -1379,7 +1408,7 @@ export default steps = [
       { value: "Education", label: 'Education', trigger: (steps) => { genMessage(steps); return "new90"} },
       { value: "Community", label: 'Community', trigger: (steps) => { genMessage(steps); return "new90"} },
       { value: "Other", label: 'Other', trigger: (steps) => { genMessage(steps); return "new90"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new100"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new100"} },
     ]
   },
   {
@@ -1395,8 +1424,8 @@ export default steps = [
   {
     id: "new92",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new93"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new95"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new93"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new95"} },
     ]
   },
   {
@@ -1413,7 +1442,7 @@ export default steps = [
   {
     id: "new95",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new96"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new96"}
   },
   {
     id: "new96",
@@ -1423,8 +1452,8 @@ export default steps = [
   {
     id: "new97",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new98"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new88"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new98"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new88"} },
     ]
   },
   {
@@ -1435,7 +1464,7 @@ export default steps = [
   {
     id: "new99",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new88"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new88"}
   },
   {
     id: "new100",
@@ -1445,8 +1474,8 @@ export default steps = [
   {
     id: "new101",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new102"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "Outro"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new102"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "Outro"} },
     ]
   },
   {
@@ -1462,8 +1491,8 @@ export default steps = [
   {
     id: "new104",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new105"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "new107"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new105"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "new107"} },
     ]
   },
   {
@@ -1480,7 +1509,7 @@ export default steps = [
   {
     id: "new107",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "new108"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "new108"}
   },
   {
     id: "new108",
@@ -1490,14 +1519,14 @@ export default steps = [
   {
     id: "new109",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "new110"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "Outro"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "new110"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "Outro"} },
     ]
   },
   {
     id: "new110",
     user: true,
-    trigger: (steps) => { genMessage(steps, true); return "new108"}
+    trigger: (steps) => { genMessage(steps, true, "human"); return "new108"}
   },
 
   ////////////////////
@@ -1517,8 +1546,8 @@ export default steps = [
   {
     id: "out2",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "out3"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "out8"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "out3"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "out8"} },
     ]
   },
   {
@@ -1529,7 +1558,7 @@ export default steps = [
   {
     id: "out4",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "out5"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "out5"}
   },
   {
     id: "out5",
@@ -1539,14 +1568,14 @@ export default steps = [
   {
     id: "out6",
     options: [
-      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps); return "out7"} },
-      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps); return "out8"} },
+      { value: "Yes", label: 'Yes', trigger: (steps) => { genMessage(steps, false, "human"); return "out7"} },
+      { value: "No", label: 'No', trigger: (steps) => { genMessage(steps, false, "human"); return "out8"} },
     ]
   },
   {
     id: "out7",
     user: true,
-    trigger: (steps) => { genMessage(steps); return "out5"}
+    trigger: (steps) => { genMessage(steps, false, "human"); return "out5"}
   },
   {
     id: "out8",

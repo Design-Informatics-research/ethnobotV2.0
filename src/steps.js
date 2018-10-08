@@ -38,9 +38,7 @@ export const saveEntry = async (entry, source, geoLoc) => {
   geoLoc = geoLoc || false;
 
   if (geoLoc) {
-   navigator.geolocation.getCurrentPosition(
-     (position) => {
-
+    navigator.geolocation.getCurrentPosition((position) => {
       let multiEntries = [
         ["ebot-"+(new Date()-0), JSON.stringify({
           time: new Date().toLocaleString(),
@@ -61,13 +59,34 @@ export const saveEntry = async (entry, source, geoLoc) => {
       try {
         AsyncStorage.multiSet(multiEntries);
       } catch (error) {
+        console.log(error);
+      }
+    }, (error) => { 
+      console.log({ error: error.message });
+
+      let multiEntries = [
+        ["ebot-"+(new Date()-0), JSON.stringify({
+          time: new Date().toLocaleString(),
+          type: "err",
+          orgin: "err",
+          message: error,
+          unix: new Date()-0
+        })],
+        ["ebot-"+(new Date()-0), JSON.stringify({
+          time: new Date().toLocaleString(), 
+          type: "entry",
+          orgin: source,
+          message: entry,
+          unix: new Date()-0
+        })]
+      ];
+
+      try {
+        AsyncStorage.multiSet(multiEntries);
+      } catch (error) {
         console.log(error)
       }
-
-     },
-     (error) => console.log({ error: error.message }),
-     { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
-   );
+    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
   } else {
     try {
       await AsyncStorage.setItem("ebot-"+(new Date()-0), JSON.stringify({
